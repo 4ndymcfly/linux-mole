@@ -145,7 +145,8 @@ lm installer
 - Edit whitelist: `lm whitelist --edit`
 
 ## Screenshots
-Coming soon.
+![System status](screenshots/linux-mole-system-status-002.png)
+![Kernel](screenshots/linux-mole-kernel-001.png)
 
 ## Contributing
 
