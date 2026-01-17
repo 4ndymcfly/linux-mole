@@ -50,7 +50,7 @@ BANNER = r""" _      _                     __  __       _
 | |    | | '_ \| | | \ \/ /  | |\/| |/ _ \| |/ _ \
 | |____| | | | | |_| |>  <   | |  | | (_) | |  __/
 |______|_|_| |_|\__,_/_/\_\  |_|  |_|\___/|_|\___|"""
-PROJECT_URL = "https://github.com/andres/linux-mole"
+PROJECT_URL = "https://github.com/4ndymcfly/linux-mole"
 TAGLINE = "Safe maintenance for Linux + Docker."
 VERSION = "0.1.0"
 
