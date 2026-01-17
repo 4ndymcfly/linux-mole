@@ -21,6 +21,15 @@ LinuxMole is a Mole-inspired CLI for Linux servers with Docker. It focuses on sa
 - System maintenance (journald, tmpfiles, apt, caches)
 - Whitelist support and detailed preview logs
 
+## Screenshots
+<table align="center">
+  <tr>
+    <td align="center"><img src="screenshots/linux-mole-system-status-002.png" alt="System status" height="300"></td>
+    <td width="24"></td>
+    <td align="center"><img src="screenshots/linux-mole-kernel-001.png" alt="Kernel" height="300"></td>
+  </tr>
+</table>
+
 ## Help Output
 
 ```text
@@ -148,15 +157,6 @@ lm installer
 - Whitelist file: `~/.config/linuxmole/whitelist.txt`
 - Purge paths file: `~/.config/linuxmole/purge_paths`
 - Edit whitelist: `lm whitelist --edit`
-
-## Screenshots
-<table align="center">
-  <tr>
-    <td align="center"><img src="screenshots/linux-mole-system-status-002.png" alt="System status" height="300"></td>
-    <td width="24"></td>
-    <td align="center"><img src="screenshots/linux-mole-kernel-001.png" alt="Kernel" height="300"></td>
-  </tr>
-</table>
 
 ## Contributing
 
