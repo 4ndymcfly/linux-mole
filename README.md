@@ -11,7 +11,7 @@
 
 ## Overview
 
-LinuxMole is a Mole-like CLI for Linux servers with Docker. It focuses on safe, transparent maintenance with previews, structured output, and explicit confirmation.
+LinuxMole is a Mole-inspired CLI for Linux servers with Docker. It focuses on safe, transparent maintenance with previews, structured output, and explicit confirmation.
 
 ## Features
 
