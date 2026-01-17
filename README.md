@@ -1,6 +1,6 @@
 # LinuxMole
 
-*Safe maintenance for Linux + Docker, inspired by Mole for macOS, a wonderful project.*
+*Safe maintenance for Linux + Docker, inspired by [Mole for macOS](https://github.com/tw93/mole), a wonderful project.*
 
 [![Stars](https://img.shields.io/github/stars/4ndymcfly/linux-mole?style=flat-square)](https://github.com/4ndymcfly/linux-mole/stargazers)
 [![Version](https://img.shields.io/github/v/tag/4ndymcfly/linux-mole?label=version&style=flat-square)](https://github.com/4ndymcfly/linux-mole/releases)
@@ -20,6 +20,62 @@ LinuxMole is a Mole-like CLI for Linux servers with Docker. It focuses on safe, 
 - Docker-aware maintenance (images, networks, volumes, logs)
 - System maintenance (journald, tmpfiles, apt, caches)
 - Whitelist support and detailed preview logs
+
+## Help Output
+
+```text
+ _      _                     __  __       _
+| |    (_)                   |  \/  |     | |
+| |     _ _ __  _   ___  __  | \  / | ___ | | ___
+| |    | | '_ \| | | \ \/ /  | |\/| |/ _ \| |/ _ \
+| |____| | | | | |_| |>  <   | |  | | (_) | |  __/
+|______|_|_| |_|\__,_/_/\_\  |_|  |_|\___/|_|\___|
+
+https://github.com/4ndymcfly/linux-mole
+
+Safe maintenance for Linux + Docker.
+
+
+COMMANDS
+lm                      Main menu
+lm status               Full status (system + docker)
+lm status system        System status only
+lm status docker        Docker status only
+lm clean                Full cleanup (system + docker)
+lm clean system         System cleanup only
+lm clean docker         Docker cleanup only
+lm analyze              Analyze disk usage
+lm purge                Clean project build artifacts
+lm installer            Find and remove installer files
+lm whitelist            Show whitelist config
+lm uninstall            Remove LinuxMole from this system
+lm --version            Show version
+lm update               Update LinuxMole (pipx)
+
+
+OPTIONS (clean only)
+--dry-run               Preview only, no actions executed
+--yes                   Assume 'yes' for confirmations
+-h, --help              Show help
+
+
+EXAMPLES
+  lm status
+  lm status --paths
+  lm status docker --top-logs 50
+  lm clean --containers --networks --images dangling --dry-run
+  lm clean docker --images unused --yes
+  lm clean docker --truncate-logs-mb 500 --dry-run
+  lm clean system --journal --tmpfiles --apt --dry-run
+  lm clean system --logs --logs-days 14 --dry-run
+  lm clean system --kernels --kernels-keep 2 --dry-run
+  lm analyze --path /var --top 15
+  lm purge
+  lm installer
+  lm whitelist
+  lm --version
+  lm update
+```
 
 ## Installation
 
@@ -45,17 +101,6 @@ lm status
 
 ```bash
 sudo ./install-linuxmole.sh
-```
-
-## Quick Start
-
-```bash
-lm status
-lm status system
-lm status docker
-lm clean --dry-run
-lm clean system --dry-run
-lm clean docker --dry-run
 ```
 
 ## Commands
@@ -100,11 +145,7 @@ lm installer
 - Edit whitelist: `lm whitelist --edit`
 
 ## Screenshots
-
-Add screenshots to a `./screenshots` folder and reference them here, for example:
-
-![Status](screenshots/status.png)
-![Clean](screenshots/clean.png)
+Coming soon.
 
 ## Release
 
