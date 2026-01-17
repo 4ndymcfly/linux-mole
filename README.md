@@ -1,6 +1,6 @@
 # LinuxMole
 
-*Safe maintenance for Linux + Docker, inspired by Mole for macOS, a wonderful project.*
+*Safe maintenance for Linux + Docker, inspired by [Mole for macOS](https://github.com/tw93/mole), a wonderful project.*
 
 [![Stars](https://img.shields.io/github/stars/4ndymcfly/linux-mole?style=flat-square)](https://github.com/4ndymcfly/linux-mole/stargazers)
 [![Version](https://img.shields.io/github/v/tag/4ndymcfly/linux-mole?label=version&style=flat-square)](https://github.com/4ndymcfly/linux-mole/releases)
@@ -100,8 +100,6 @@ lm installer
 - Edit whitelist: `lm whitelist --edit`
 
 ## Screenshots
-
-Add screenshots to a `./screenshots` folder and reference them here, for example:
 
 ![Status](screenshots/status.png)
 ![Clean](screenshots/clean.png)
