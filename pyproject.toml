@@ -9,9 +9,9 @@ description = "Safe maintenance for Linux + Docker."
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
-authors = [{name = "Andres Lorente", email = "you@example.com"}]
+authors = [{name = "Andres Lorente", email = "info@hackingepico.com"}]
 dependencies = ["rich>=13.0.0"]
-keywords = ["linux", "docker", "cleanup", "maintenance", "cli"]
+keywords = ["linux", "docker", "cleanup", "maintenance", "disk-space", "cli", "system-tools", "devops", "server", "python"]
 classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
