@@ -1,8 +1,19 @@
 # LinuxMole
 
-*Safe maintenance for Linux + Docker, inspired by Mole.*
+*Safe maintenance for Linux + Docker, inspired by Mole for macOS, a wonderful project.*
+
+[![Stars](https://img.shields.io/github/stars/4ndymcfly/linux-mole?style=flat-square)](https://github.com/4ndymcfly/linux-mole/stargazers)
+[![Version](https://img.shields.io/github/v/tag/4ndymcfly/linux-mole?label=version&style=flat-square)](https://github.com/4ndymcfly/linux-mole/releases)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square)](https://www.python.org/)
+[![Last commit](https://img.shields.io/github/last-commit/4ndymcfly/linux-mole?style=flat-square)](https://github.com/4ndymcfly/linux-mole/commits)
+[![pipx](https://img.shields.io/badge/pipx-ready-blueviolet?style=flat-square)](https://pypa.github.io/pipx/)
 
 ## Overview
+
+LinuxMole is a Mole-like CLI for Linux servers with Docker. It focuses on safe, transparent maintenance with previews, structured output, and explicit confirmation.
+
+## Features
 
 - Mole-like console UX with structured sections and previews
 - Safe-by-default cleanup with explicit confirmation
@@ -100,3 +111,7 @@ Add screenshots to a `./screenshots` folder and reference them here, for example
 1) Update version in `pyproject.toml` and `lm.py`
 2) Tag and push: `git tag vX.Y.Z && git push --tags`
 3) Users upgrade: `pipx upgrade linuxmole`
+
+## Acknowledgements
+
+Thanks to the original Mole project for inspiration: https://github.com/tw93/mole
