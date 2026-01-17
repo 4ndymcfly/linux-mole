@@ -147,8 +147,8 @@ lm installer
 ## Screenshots
 <table>
   <tr>
-    <td><img src="screenshots/linux-mole-system-status-002.png" alt="System status" width="480"></td>
-    <td><img src="screenshots/linux-mole-kernel-001.png" alt="Kernel" width="480"></td>
+    <td><img src="screenshots/linux-mole-system-status-002.png" alt="System status" height="300"></td>
+    <td><img src="screenshots/linux-mole-kernel-001.png" alt="Kernel" height="300"></td>
   </tr>
 </table>
 
