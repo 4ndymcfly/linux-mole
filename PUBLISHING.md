@@ -15,6 +15,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -U pip build twine
 python -m build
+twine check dist/*
 ```
 
 ## 3) Upload to PyPI
