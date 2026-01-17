@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linuxmole"
+version = "0.1.0"
+description = "Safe maintenance for Linux + Docker."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [{name = "Andres", email = "you@example.com"}]
+dependencies = ["rich>=13.0.0"]
+
+[project.scripts]
+lm = "lm:main"
+
+[tool.setuptools]
+py-modules = ["lm"]
