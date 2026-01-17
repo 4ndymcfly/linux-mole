@@ -89,6 +89,11 @@ pipx ensurepath
 
 2) Install LinuxMole:
 ```bash
+pipx install linuxmole
+```
+
+Development install (latest main):
+```bash
 pipx install "git+https://github.com/4ndymcfly/linux-mole.git"
 ```
 

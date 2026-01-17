@@ -8,7 +8,7 @@ version = "1.0.0"
 description = "Safe, Mole-inspired maintenance for Linux + Docker."
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "MIT"}
+license = {file = "LICENSE"}
 authors = [{name = "Andres Lorente", email = "info@hackingepico.com"}]
 dependencies = ["rich>=13.0.0"]
 keywords = ["linux", "docker", "cleanup", "maintenance", "disk-space", "cli", "system-tools", "devops", "server", "python"]
@@ -35,3 +35,4 @@ lm = "lm:main"
 
 [tool.setuptools]
 py-modules = ["lm"]
+license-files = ["LICENSE"]
