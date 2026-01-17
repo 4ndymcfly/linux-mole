@@ -147,7 +147,13 @@ lm installer
 ## Screenshots
 Coming soon.
 
+## Contributing
+
+See `CONTRIBUTING.md` for guidelines.
+
 ## Release
+
+See `PUBLISHING.md` for the PyPI/pipx release workflow.
 
 1) Update version in `pyproject.toml` and `lm.py`
 2) Tag and push: `git tag vX.Y.Z && git push --tags`
