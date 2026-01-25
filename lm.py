@@ -1,16 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-lm.py - Mole-like maintenance CLI for Ubuntu + Docker
+lm.py - Compatibility stub for LinuxMole
 
-Features:
-- Structured output (rich panels/tables) if 'rich' is installed; fallback to plain text.
-- Safe-by-default: shows plan, supports --dry-run, --yes.
-- Docker maintenance: unused containers/images/networks/volumes, builder cache, system usage, log stats + optional truncation.
-- System maintenance: journald vacuum, tmpfiles clean, apt clean/autoremove.
+This file maintains backward compatibility during modularization.
+All functionality has been moved to the linuxmole package.
 """
 
 from __future__ import annotations
+
+# Re-export everything from linuxmole package (overrides local definitions)
+from linuxmole import *  # noqa: F401, F403
+
+# Conditional imports for rich and textual (used in remaining code)
+if RICH:
+    from rich.console import Console
+    from rich.table import Table
+    from rich.panel import Panel
+    from rich.text import Text
+    from rich import box
+
+if TEXTUAL:
+    from textual.app import App, ComposeResult
+    from textual.containers import Container, Horizontal, Vertical
+    from textual.widgets import Header, Footer, DirectoryTree, Static, Label
+    from textual.binding import Binding
+    from textual.reactive import reactive
 
 import argparse
 import fnmatch
