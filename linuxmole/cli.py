@@ -148,12 +148,12 @@ def main() -> None:
 
     def add_system_flags(p):
         p.add_argument("--journal", action="store_true", help="Apply journald cleanup.")
-        p.add_argument("--journal-time", default="14d", help="Retention by time (e.g. 7d, 14d, 1month).")
-        p.add_argument("--journal-size", default="500M", help="Size cap (e.g. 200M, 1G).")
+        p.add_argument("--journal-time", default=None, help="Retention by time (e.g. 7d, 14d, 1month). Default from config.")
+        p.add_argument("--journal-size", default=None, help="Size cap (e.g. 200M, 1G). Default from config.")
         p.add_argument("--tmpfiles", action="store_true", help="systemd-tmpfiles --clean.")
         p.add_argument("--apt", action="store_true", help="apt autoremove/autoclean/clean.")
         p.add_argument("--logs", action="store_true", help="Clean rotated logs in /var/log.")
-        p.add_argument("--logs-days", type=int, default=7, help="Log age threshold in days.")
+        p.add_argument("--logs-days", type=int, default=None, help="Log age threshold in days. Default from config.")
         p.add_argument("--kernels", action="store_true", help="Remove old kernels (not default).")
         p.add_argument("--kernels-keep", type=int, default=2, help="How many kernel versions to keep.")
         p.add_argument("--pip-cache", action="store_true", help="Clean pip cache.")

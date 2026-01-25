@@ -29,7 +29,7 @@ from linuxmole.helpers import (
     format_size,
     maybe_reexec_with_sudo,
 )
-from linuxmole.config import load_whitelist, is_whitelisted
+from linuxmole.config import load_whitelist, is_whitelisted, load_config
 from linuxmole.plans import Action, show_plan, exec_actions
 from linuxmole.system.paths import du_bytes, find_log_candidates
 from linuxmole.system.apt import kernel_cleanup_candidates, kernel_pkg_size_bytes
@@ -119,6 +119,13 @@ def apply_default_clean_flags(args: argparse.Namespace, mode: str) -> None:
 def cmd_docker_clean(args: argparse.Namespace) -> None:
     """Clean Docker resources (containers, images, volumes, logs)."""
     apply_default_clean_flags(args, "docker")
+
+    # Load config and apply auto_confirm if needed
+    config = load_config()
+    clean_config = config.get("clean", {})
+    if not args.yes and clean_config.get("auto_confirm", False):
+        args.yes = True
+
     if not docker_available():
         p("Docker is not installed or not accessible.")
         return
@@ -470,6 +477,23 @@ def cmd_docker_clean(args: argparse.Namespace) -> None:
 def cmd_clean_system(args: argparse.Namespace) -> None:
     """Clean system resources (journal, tmp, apt, logs, kernels, caches)."""
     apply_default_clean_flags(args, "system")
+
+    # Load config and apply defaults
+    config = load_config()
+    clean_config = config.get("clean", {})
+
+    # Apply config defaults when CLI args are None
+    if args.journal_time is None:
+        args.journal_time = clean_config.get("default_journal_time", "3d")
+    if args.journal_size is None:
+        args.journal_size = clean_config.get("default_journal_size", "500M")
+    if args.logs_days is None:
+        args.logs_days = clean_config.get("preserve_recent_days", 7)
+
+    # Apply auto_confirm from config if not explicitly set via CLI
+    if not args.yes and clean_config.get("auto_confirm", False):
+        args.yes = True
+
     section("Clean system")
     if args.dry_run:
         line_do("Dry Run Mode - Preview only, no deletions")

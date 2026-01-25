@@ -11,11 +11,16 @@ from linuxmole.logging_setup import logger
 from linuxmole.output import section, p, line_ok, line_warn
 from linuxmole.helpers import which, capture, confirm, is_root, maybe_reexec_with_sudo
 from linuxmole.plans import Action, show_plan, exec_actions
+from linuxmole.config import load_config
 
 
 def cmd_optimize(args: argparse.Namespace) -> None:
     """Optimize system by rebuilding databases and restarting services."""
     section("System Optimization")
+
+    # Load config
+    config = load_config()
+    optimize_config = config.get("optimize", {})
 
     actions = []
 
@@ -24,8 +29,19 @@ def cmd_optimize(args: argparse.Namespace) -> None:
         args.database or args.network or args.services or args.clear_cache
     )
 
+    # When using --all, respect config flags to enable/disable specific optimizations
+    if optimize_all:
+        should_database = optimize_config.get("auto_database", True)
+        should_network = optimize_config.get("auto_network", True)
+        should_services = optimize_config.get("auto_services", True)
+    else:
+        # When specific flags are used, use them directly
+        should_database = args.database
+        should_network = args.network
+        should_services = args.services
+
     # 1. Database optimization
-    if optimize_all or args.database:
+    if should_database:
         logger.info("Adding database optimization tasks")
 
         # updatedb - locate database
@@ -61,7 +77,7 @@ def cmd_optimize(args: argparse.Namespace) -> None:
             ))
 
     # 2. Network optimization
-    if optimize_all or args.network:
+    if should_network:
         logger.info("Adding network optimization tasks")
 
         # Flush DNS cache (systemd-resolved)
@@ -93,7 +109,7 @@ def cmd_optimize(args: argparse.Namespace) -> None:
             ))
 
     # 3. Services optimization
-    if optimize_all or args.services:
+    if should_services:
         logger.info("Adding services optimization tasks")
 
         if which("systemctl"):
