@@ -49,6 +49,11 @@ from linuxmole.helpers import (
     confirm,
     human_bytes,
     format_size,
+    bar,
+    now_str,
+    clear_screen,
+    pause,
+    maybe_reexec_with_sudo,
 )
 
 # Re-export config (LAYER 1)
@@ -144,6 +149,53 @@ from linuxmole.docker import (
     sum_container_sizes,
 )
 
+# Re-export commands (LAYER 3)
+from linuxmole.commands import (
+    # status
+    cmd_status_system,
+    cmd_status_all,
+    cmd_docker_status,
+    # clean
+    cmd_clean_all,
+    cmd_clean_system,
+    cmd_docker_clean,
+    apply_default_clean_flags,
+    # analyze
+    cmd_analyze,
+    # purge
+    cmd_purge,
+    # installer
+    cmd_installer,
+    # uninstall
+    cmd_uninstall_app,
+    is_apt_package,
+    is_snap_package,
+    is_flatpak_package,
+    get_package_config_paths,
+    # optimize
+    cmd_optimize,
+    # whitelist
+    cmd_whitelist,
+    # config
+    cmd_config,
+)
+
+# Re-export interactive (LAYER 4)
+from linuxmole.interactive import (
+    prompt_bool,
+    prompt_choice,
+    prompt_int,
+    simple_docker_clean,
+    simple_clean_system,
+    interactive_simple,
+)
+
+# Re-export cli (LAYER 4)
+from linuxmole.cli import (
+    print_help,
+    main,
+)
+
 __all__ = [
     # Constants
     "BANNER",
@@ -178,6 +230,11 @@ __all__ = [
     "confirm",
     "human_bytes",
     "format_size",
+    "bar",
+    "now_str",
+    "clear_screen",
+    "pause",
+    "maybe_reexec_with_sudo",
     # Config
     "config_dir",
     "whitelist_path",
@@ -257,4 +314,41 @@ __all__ = [
     "sum_image_sizes",
     "parse_container_size",
     "sum_container_sizes",
+    # Commands - status
+    "cmd_status_system",
+    "cmd_status_all",
+    "cmd_docker_status",
+    # Commands - clean
+    "cmd_clean_all",
+    "cmd_clean_system",
+    "cmd_docker_clean",
+    "apply_default_clean_flags",
+    # Commands - analyze
+    "cmd_analyze",
+    # Commands - purge
+    "cmd_purge",
+    # Commands - installer
+    "cmd_installer",
+    # Commands - uninstall
+    "cmd_uninstall_app",
+    "is_apt_package",
+    "is_snap_package",
+    "is_flatpak_package",
+    "get_package_config_paths",
+    # Commands - optimize
+    "cmd_optimize",
+    # Commands - whitelist
+    "cmd_whitelist",
+    # Commands - config
+    "cmd_config",
+    # Interactive
+    "prompt_bool",
+    "prompt_choice",
+    "prompt_int",
+    "simple_docker_clean",
+    "simple_clean_system",
+    "interactive_simple",
+    # CLI
+    "print_help",
+    "main",
 ]
