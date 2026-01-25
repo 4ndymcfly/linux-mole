@@ -42,10 +42,10 @@ dev = [
 ]
 
 [project.scripts]
-lm = "lm:main"
+lm = "linuxmole.cli:main"
 
 [tool.setuptools]
-py-modules = ["lm"]
+packages = ["linuxmole", "linuxmole.system", "linuxmole.docker", "linuxmole.commands"]
 license-files = ["LICENSE"]
 
 [tool.pytest.ini_options]
@@ -55,7 +55,7 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
   "--verbose",
-  "--cov=lm",
+  "--cov=linuxmole",
   "--cov-report=term-missing",
   "--cov-report=html",
   "--cov-fail-under=15"
@@ -65,7 +65,7 @@ addopts = [
 # Final target: 70%+ after all command implementations are tested.
 
 [tool.coverage.run]
-source = ["lm"]
+source = ["linuxmole"]
 omit = [
   "tests/*",
   "*/__pycache__/*",

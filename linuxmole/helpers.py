@@ -6,8 +6,10 @@ Helper utility functions for LinuxMole.
 
 from __future__ import annotations
 import os
+import sys
 import shlex
 import subprocess
+from datetime import datetime
 from typing import List, Optional
 
 from linuxmole.logging_setup import logger
@@ -116,3 +118,52 @@ def format_size(n: Optional[int], unknown: bool = False) -> str:
         return "size unavailable"
     s = human_bytes(n)
     return f"{s}+" if unknown else s
+
+
+def bar(pct: float, width: int = 30) -> str:
+    """
+    Generate a simple ASCII progress bar.
+
+    Args:
+        pct: Percentage (0-100)
+        width: Width of the bar in characters
+
+    Returns:
+        ASCII progress bar string
+    """
+    filled = int(width * pct / 100)
+    return "[" + "#" * filled + "-" * (width - filled) + f"] {pct:.1f}%"
+
+
+def now_str() -> str:
+    """Return current timestamp as formatted string."""
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def clear_screen() -> None:
+    """Clear the terminal screen."""
+    if sys.stdout.isatty():
+        os.system("clear")
+
+
+def pause(msg: str = "Press Enter to continue...") -> None:
+    """Pause execution and wait for user input."""
+    input(msg)
+
+
+def maybe_reexec_with_sudo(reason: str) -> None:
+    """
+    Re-execute the current script with sudo if not running as root.
+
+    Args:
+        reason: Explanation of why root access is needed
+    """
+    if is_root():
+        return
+    p(f"[warn] {reason}")
+    if not confirm("Re-execute with sudo?", assume_yes=False):
+        p("[skip] Skipping operations that require root.")
+        sys.exit(0)
+    args = ["sudo", sys.executable] + sys.argv
+    logger.debug(f"Re-executing with sudo: {args}")
+    os.execvp("sudo", args)
