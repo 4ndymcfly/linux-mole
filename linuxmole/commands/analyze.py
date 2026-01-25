@@ -16,6 +16,7 @@ from linuxmole.logging_setup import logger
 from linuxmole.output import section, p, line_ok, line_warn, table, scan_status
 from linuxmole.helpers import which, capture, confirm, format_size, bar
 from linuxmole.system.paths import du_bytes
+from linuxmole.config import load_config
 
 # Import Textual classes only if available
 if TEXTUAL:
@@ -151,6 +152,15 @@ if TEXTUAL:
 
 def cmd_analyze(args: argparse.Namespace) -> None:
     """Analyze disk usage of a directory."""
+    # Load config and apply defaults
+    config = load_config()
+    paths_config = config.get("paths", {})
+    tui_config = config.get("tui", {})
+
+    # Use default path from config if path is "."
+    if args.path == ".":
+        args.path = paths_config.get("analyze_default", ".")
+
     target = os.path.expanduser(args.path)
 
     # Launch TUI if requested
@@ -162,7 +172,9 @@ def cmd_analyze(args: argparse.Namespace) -> None:
             p("Textual is required for the interactive TUI interface.")
             p("")
 
-            if confirm("Would you like to install textual and its dependencies?", False):
+            # Use auto_install from config
+            auto_install = tui_config.get("auto_install", True)
+            if confirm("Would you like to install textual and its dependencies?", auto_install):
                 p("Installing textual...")
                 try:
                     # Try to install textual
