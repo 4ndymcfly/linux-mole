@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import logging
 import os
 import shlex
 import re
@@ -27,7 +28,16 @@ from functools import cmp_to_key
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
+
+# TOML support (tomllib for Python 3.11+, tomli for <3.11)
+try:
+    import tomllib
+except ModuleNotFoundError:
+    try:
+        import tomli as tomllib  # type: ignore
+    except ModuleNotFoundError:
+        tomllib = None  # type: ignore
 
 # -----------------------------
 # Rich (optional) output
@@ -43,6 +53,18 @@ try:
     console = Console(highlight=False)
 except Exception:
     console = None
+
+# Textual TUI support (optional)
+TEXTUAL = False
+try:
+    from textual.app import App, ComposeResult
+    from textual.containers import Container, Horizontal, Vertical
+    from textual.widgets import Header, Footer, DirectoryTree, Static, Label
+    from textual.binding import Binding
+    from textual.reactive import reactive
+    TEXTUAL = True
+except Exception:
+    TEXTUAL = False
 
 BANNER = r""" _      _                     __  __       _
 | |    (_)                   |  \/  |     | |
@@ -147,6 +169,51 @@ def table(title_str: str, headers: List[str], rows: List[List[str]]) -> None:
             print(" | ".join(r))
 
 # -----------------------------
+# Logging
+# -----------------------------
+logger = logging.getLogger("linuxmole")
+
+def setup_logging(verbose: bool = False, log_file: Optional[str] = None) -> None:
+    """
+    Configure logging system.
+
+    Args:
+        verbose: If True, set DEBUG level. Otherwise INFO.
+        log_file: Optional path to log file. If None, only console logging.
+    """
+    level = logging.DEBUG if verbose else logging.INFO
+    handlers = []
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter('[%(levelname)s] %(message)s'))
+    handlers.append(console_handler)
+
+    # File handler (optional)
+    if log_file:
+        try:
+            file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
+            file_handler.setFormatter(logging.Formatter(
+                '%(asctime)s - [%(levelname)s] - %(name)s - %(message)s'
+            ))
+            handlers.append(file_handler)
+            logger.info(f"Logging to file: {log_file}")
+        except Exception as e:
+            logger.warning(f"Failed to create log file {log_file}: {e}")
+
+    # Configure root logger
+    logging.basicConfig(
+        level=level,
+        handlers=handlers,
+        force=True
+    )
+
+    logger.setLevel(level)
+
+    if verbose:
+        logger.debug("Verbose logging enabled")
+
+# -----------------------------
 # Helpers
 # -----------------------------
 def which(cmd: str) -> Optional[str]:
@@ -156,13 +223,20 @@ def which(cmd: str) -> Optional[str]:
 def run(cmd: List[str], dry_run: bool, check: bool = False) -> subprocess.CompletedProcess:
     printable = " ".join(shlex.quote(x) for x in cmd)
     if dry_run:
+        logger.debug(f"[DRY-RUN] Would execute: {printable}")
         p(f"[dry-run] {printable}")
         return subprocess.CompletedProcess(cmd, 0, stdout=b"", stderr=b"")
+    logger.debug(f"Executing command: {printable}")
     p(f"[run] {printable}")
-    return subprocess.run(cmd, check=check)
+    result = subprocess.run(cmd, check=check)
+    logger.debug(f"Command completed with return code: {result.returncode}")
+    return result
 
 def capture(cmd: List[str]) -> str:
-    return subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL).strip()
+    logger.debug(f"Capturing output: {' '.join(shlex.quote(x) for x in cmd)}")
+    result = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL).strip()
+    logger.debug(f"Captured {len(result)} bytes")
+    return result
 
 def is_root() -> bool:
     return os.geteuid() == 0
@@ -913,6 +987,109 @@ def whitelist_path() -> Path:
 
 def purge_paths_file() -> Path:
     return config_dir() / "purge_paths"
+
+def config_file_path() -> Path:
+    return config_dir() / "config.toml"
+
+def default_config() -> Dict[str, Any]:
+    """Return default configuration."""
+    return {
+        "whitelist": {
+            "auto_protect_system": True,
+            "patterns": [
+                "/home/*/.ssh/*",
+                "/home/*/.gnupg/*",
+                "/etc/passwd",
+                "/etc/shadow",
+                "/etc/fstab",
+                "/boot/*",
+                "/sys/*",
+                "/proc/*"
+            ]
+        },
+        "clean": {
+            "auto_confirm": False,
+            "preserve_recent_days": 7,
+            "default_journal_time": "3d",
+            "default_journal_size": "500M"
+        },
+        "paths": {
+            "purge_paths": [
+                "~/Projects",
+                "~/GitHub",
+                "~/dev",
+                "~/work"
+            ],
+            "analyze_default": "."
+        },
+        "optimize": {
+            "auto_database": True,
+            "auto_network": True,
+            "auto_services": True,
+            "auto_clear_cache": False
+        },
+        "tui": {
+            "auto_install": True
+        }
+    }
+
+def load_config() -> Dict[str, Any]:
+    """Load configuration from config.toml or return defaults."""
+    config_path = config_file_path()
+
+    if not config_path.exists():
+        logger.debug("Config file not found, using defaults")
+        return default_config()
+
+    if tomllib is None:
+        logger.warning("TOML library not available, using defaults")
+        return default_config()
+
+    try:
+        with open(config_path, "rb") as f:
+            config = tomllib.load(f)
+        logger.debug(f"Loaded config from {config_path}")
+        return config
+    except Exception as e:
+        logger.error(f"Error loading config: {e}")
+        return default_config()
+
+def save_config(config: Dict[str, Any]) -> bool:
+    """Save configuration to config.toml."""
+    config_path = config_file_path()
+
+    try:
+        # Ensure config directory exists
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Convert dict to TOML string manually (simple implementation)
+        lines = []
+        for section, values in config.items():
+            lines.append(f"[{section}]")
+            for key, value in values.items():
+                if isinstance(value, bool):
+                    lines.append(f"{key} = {str(value).lower()}")
+                elif isinstance(value, (int, float)):
+                    lines.append(f"{key} = {value}")
+                elif isinstance(value, str):
+                    lines.append(f'{key} = "{value}"')
+                elif isinstance(value, list):
+                    # Format list
+                    formatted_items = []
+                    for item in value:
+                        if isinstance(item, str):
+                            formatted_items.append(f'"{item}"')
+                        else:
+                            formatted_items.append(str(item))
+                    lines.append(f"{key} = [{', '.join(formatted_items)}]")
+            lines.append("")  # Empty line between sections
+
+        config_path.write_text("\n".join(lines), encoding="utf-8")
+        logger.info(f"Saved config to {config_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Error saving config: {e}")
+        return False
 
 def load_whitelist() -> List[str]:
     path = whitelist_path()
@@ -2010,9 +2187,175 @@ def cmd_clean_all(args: argparse.Namespace) -> None:
     cmd_clean_system(args)
     cmd_docker_clean(args)
 
+# -----------------------------
+# TUI for analyze command
+# -----------------------------
+if TEXTUAL:
+    class DiskUsageInfo(Static):
+        """Widget to display information about selected directory."""
+
+        path = reactive("")
+        size = reactive(0)
+        total_size = reactive(1)
+
+        def render(self) -> str:
+            """Render the disk usage information."""
+            if not self.path:
+                return "[dim]Select a directory to see details[/dim]"
+
+            percentage = (self.size / self.total_size * 100) if self.total_size > 0 else 0
+            size_str = format_size(self.size)
+
+            return f"""[bold cyan]Path:[/bold cyan] {self.path}
+[bold yellow]Size:[/bold yellow] {size_str}
+[bold green]Percentage:[/bold green] {percentage:.1f}% of total"""
+
+    class DiskAnalyzerApp(App):
+        """Interactive TUI for disk usage analysis."""
+
+        CSS = """
+        Screen {
+            layers: base overlay notes notifications;
+        }
+
+        DiskUsageInfo {
+            dock: top;
+            height: 5;
+            border: solid $primary;
+            padding: 1;
+        }
+
+        DirectoryTree {
+            scrollbar-gutter: stable;
+            dock: left;
+            width: 60%;
+            height: 100%;
+        }
+
+        #info_panel {
+            dock: right;
+            width: 40%;
+            height: 100%;
+            border: solid $accent;
+            padding: 1;
+        }
+
+        Container {
+            height: 100%;
+        }
+        """
+
+        BINDINGS = [
+            Binding("q", "quit", "Quit", key_display="Q"),
+            Binding("r", "refresh", "Refresh", key_display="R"),
+            ("d", "toggle_dark", "Toggle Dark Mode"),
+        ]
+
+        TITLE = "LinuxMole - Disk Usage Analyzer"
+        SUB_TITLE = "Navigate with arrows, press Q to quit"
+
+        def __init__(self, start_path: str = "/"):
+            super().__init__()
+            self.start_path = start_path
+            self.total_size = 0
+
+        def compose(self) -> ComposeResult:
+            """Compose the UI layout."""
+            yield Header()
+            with Horizontal():
+                yield DirectoryTree(self.start_path, id="tree")
+                with Vertical(id="info_panel"):
+                    yield DiskUsageInfo(id="disk_info")
+                    yield Static("[dim]Use arrow keys to navigate\nPress Enter to expand\nPress Q to quit[/dim]", id="help_text")
+            yield Footer()
+
+        def on_mount(self) -> None:
+            """Handle mount event."""
+            self.query_one(DirectoryTree).focus()
+            # Calculate total size of start path
+            self.total_size = du_bytes(self.start_path) or 1
+
+        def on_directory_tree_directory_selected(
+            self, event: DirectoryTree.DirectorySelected
+        ) -> None:
+            """Handle directory selection."""
+            path = str(event.path)
+            size = du_bytes(path) or 0
+
+            disk_info = self.query_one("#disk_info", DiskUsageInfo)
+            disk_info.path = path
+            disk_info.size = size
+            disk_info.total_size = self.total_size
+
+        def on_directory_tree_file_selected(
+            self, event: DirectoryTree.FileSelected
+        ) -> None:
+            """Handle file selection."""
+            path = str(event.path)
+            try:
+                size = Path(path).stat().st_size
+            except Exception:
+                size = 0
+
+            disk_info = self.query_one("#disk_info", DiskUsageInfo)
+            disk_info.path = path
+            disk_info.size = size
+            disk_info.total_size = self.total_size
+
+        def action_refresh(self) -> None:
+            """Refresh the directory tree."""
+            tree = self.query_one(DirectoryTree)
+            tree.reload()
+            self.total_size = du_bytes(self.start_path) or 1
+            self.notify("Directory tree refreshed")
+
 def cmd_analyze(args: argparse.Namespace) -> None:
-    section("Analyze")
     target = os.path.expanduser(args.path)
+
+    # Launch TUI if requested
+    if hasattr(args, 'tui') and args.tui:
+        if not TEXTUAL:
+            # Offer to install textual
+            p("")
+            line_warn("Textual library is not installed.")
+            p("Textual is required for the interactive TUI interface.")
+            p("")
+
+            if confirm("Would you like to install textual and its dependencies?", False):
+                p("Installing textual...")
+                try:
+                    # Try to install textual
+                    result = subprocess.run(
+                        [sys.executable, "-m", "pip", "install", "textual>=0.47.0"],
+                        capture_output=True,
+                        text=True,
+                        timeout=60
+                    )
+
+                    if result.returncode == 0:
+                        line_ok("Textual installed successfully!")
+                        p("Please run the command again to use the TUI.")
+                        p("Note: You may need to restart your terminal session.")
+                        return
+                    else:
+                        line_warn("Failed to install textual.")
+                        logger.debug(f"pip install error: {result.stderr}")
+                        p("Falling back to table view...")
+                except subprocess.TimeoutExpired:
+                    line_warn("Installation timed out.")
+                    p("Falling back to table view...")
+                except Exception as e:
+                    line_warn(f"Error installing textual: {e}")
+                    logger.debug(f"Installation exception: {e}")
+                    p("Falling back to table view...")
+            else:
+                p("Falling back to table view...")
+        else:
+            app = DiskAnalyzerApp(start_path=target)
+            app.run()
+            return
+
+    section("Analyze")
     with scan_status(f"Scanning {target}..."):
         if which("du"):
             try:
@@ -2100,6 +2443,566 @@ def cmd_installer(args: argparse.Namespace) -> None:
     for p, _ in files:
         run(["rm", "-f", p], dry_run=False, check=False)
     p("Installer cleanup completed.")
+
+# -----------------------------
+# Uninstall app command
+# -----------------------------
+def is_apt_package(name: str) -> bool:
+    """Check if package is installed via APT."""
+    try:
+        result = capture(["dpkg", "-l", name])
+        # dpkg -l returns lines with package status
+        # Line starting with "ii" means installed
+        for line in result.split("\n"):
+            if line.startswith("ii") and name in line:
+                logger.debug(f"Package {name} found via APT")
+                return True
+        return False
+    except subprocess.CalledProcessError:
+        return False
+    except Exception as e:
+        logger.debug(f"Error checking APT package {name}: {e}")
+        return False
+
+def is_snap_package(name: str) -> bool:
+    """Check if package is installed via Snap."""
+    if not which("snap"):
+        return False
+    try:
+        result = capture(["snap", "list"])
+        # Check if package name appears in snap list output
+        if name in result:
+            logger.debug(f"Package {name} found via Snap")
+            return True
+        return False
+    except subprocess.CalledProcessError:
+        return False
+    except Exception as e:
+        logger.debug(f"Error checking Snap package {name}: {e}")
+        return False
+
+def is_flatpak_package(name: str) -> bool:
+    """Check if package is installed via Flatpak."""
+    if not which("flatpak"):
+        return False
+    try:
+        result = capture(["flatpak", "list", "--app"])
+        # Flatpak IDs usually contain dots (e.g., org.mozilla.firefox)
+        # Check both exact match and partial match
+        if name in result:
+            logger.debug(f"Package {name} found via Flatpak")
+            return True
+        return False
+    except subprocess.CalledProcessError:
+        return False
+    except Exception as e:
+        logger.debug(f"Error checking Flatpak package {name}: {e}")
+        return False
+
+def get_package_config_paths(package: str) -> List[str]:
+    """Get common config paths for a package."""
+    home = Path.home()
+    paths = [
+        str(home / ".config" / package),
+        str(home / ".local" / "share" / package),
+        str(home / ".cache" / package),
+    ]
+    # Only return paths that exist
+    return [p for p in paths if Path(p).exists()]
+
+def cmd_uninstall_app(args: argparse.Namespace) -> None:
+    """Uninstall applications with all associated files."""
+    section("Uninstall Application")
+
+    # Handle special flags
+    if args.list_orphans:
+        if not which("apt"):
+            line_warn("APT not available. --list-orphans requires APT.")
+            return
+        p("Searching for orphaned packages...")
+        try:
+            result = capture(["apt-mark", "showauto"])
+            orphans = result.strip().split("\n") if result.strip() else []
+            if orphans:
+                table("Orphaned Packages", ["Package"], [[pkg] for pkg in orphans[:50]])
+                p(f"\nTotal: {len(orphans)} packages")
+                p("\nTo remove: apt autoremove")
+            else:
+                line_ok("No orphaned packages found")
+        except Exception as e:
+            line_warn(f"Failed to list orphaned packages: {e}")
+        return
+
+    if args.autoremove:
+        if not which("apt"):
+            line_warn("APT not available. --autoremove requires APT.")
+            return
+        if not is_root():
+            maybe_reexec_with_sudo("Root permissions required for apt autoremove.")
+        p("Running apt autoremove...")
+        run(["apt", "autoremove", "-y"], dry_run=args.dry_run, check=False)
+        line_ok("Autoremove completed")
+        return
+
+    if args.broken:
+        if not which("apt"):
+            line_warn("APT not available. --broken requires APT.")
+            return
+        if not is_root():
+            maybe_reexec_with_sudo("Root permissions required to fix broken packages.")
+        p("Fixing broken packages...")
+        run(["apt", "--fix-broken", "install", "-y"], dry_run=args.dry_run, check=False)
+        line_ok("Fix completed")
+        return
+
+    # Require package name
+    if not args.package:
+        line_warn("Package name required. Usage: lm uninstall <package>")
+        p("\nAvailable flags:")
+        p("  --list-orphans    List orphaned packages")
+        p("  --autoremove      Run apt autoremove")
+        p("  --broken          Fix broken packages")
+        return
+
+    package = args.package
+    logger.info(f"Attempting to uninstall package: {package}")
+
+    # Detect package manager
+    actions = []
+    pkg_manager = None
+
+    if is_apt_package(package):
+        pkg_manager = "APT"
+        p(f"Package '{package}' found via APT")
+
+        # Determine apt command based on --purge flag
+        if args.purge:
+            actions.append(Action(f"Remove package with configs", ["apt", "remove", "--purge", "-y", package], root=True))
+        else:
+            actions.append(Action(f"Remove package", ["apt", "remove", "-y", package], root=True))
+
+        # Clean up user config paths if --purge
+        if args.purge:
+            config_paths = get_package_config_paths(package)
+            if config_paths:
+                for path in config_paths:
+                    actions.append(Action(f"Remove user config", ["rm", "-rf", path], root=False))
+
+        # Autoremove after uninstall
+        actions.append(Action(f"Clean up dependencies", ["apt", "autoremove", "-y"], root=True))
+
+    elif is_snap_package(package):
+        pkg_manager = "Snap"
+        p(f"Package '{package}' found via Snap")
+
+        actions.append(Action(f"Remove snap", ["snap", "remove", package], root=True))
+
+        # Snap data is in ~/snap/<package>
+        snap_data = str(Path.home() / "snap" / package)
+        if Path(snap_data).exists() and args.purge:
+            actions.append(Action(f"Remove snap data", ["rm", "-rf", snap_data], root=False))
+
+    elif is_flatpak_package(package):
+        pkg_manager = "Flatpak"
+        p(f"Package '{package}' found via Flatpak")
+
+        actions.append(Action(f"Remove flatpak", ["flatpak", "uninstall", "-y", package], root=False))
+
+        # Flatpak data is in ~/.var/app/<package>
+        flatpak_data = str(Path.home() / ".var" / "app" / package)
+        if Path(flatpak_data).exists() and args.purge:
+            actions.append(Action(f"Remove flatpak data", ["rm", "-rf", flatpak_data], root=False))
+
+    else:
+        line_warn(f"Package '{package}' not found via APT, Snap, or Flatpak")
+        p("\nTip: Make sure the package name is correct:")
+        p("  - APT:     use package name (e.g., 'firefox', 'vim')")
+        p("  - Snap:    use snap name (e.g., 'firefox', 'spotify')")
+        p("  - Flatpak: use app ID (e.g., 'org.mozilla.firefox')")
+        return
+
+    if not actions:
+        line_warn("No actions to perform")
+        return
+
+    # Check whitelist
+    ensure_config_files()
+    whitelist = load_whitelist()
+
+    # Filter actions based on whitelist
+    # Note: for uninstall, we check if the package name is whitelisted
+    if is_whitelisted(f"/uninstall/{package}", whitelist):
+        line_warn(f"Package '{package}' is whitelisted and cannot be uninstalled")
+        p(f"Edit whitelist: lm whitelist --edit")
+        return
+
+    # Show plan
+    p("")
+    show_plan(actions, f"Uninstall Plan ({pkg_manager})")
+    p("")
+
+    # Confirm and execute
+    if not confirm(f"Uninstall '{package}'?", args.yes):
+        p("Cancelled.")
+        return
+
+    # Check root permissions if needed
+    needs_root = any(a.root for a in actions)
+    if needs_root and not is_root():
+        maybe_reexec_with_sudo(f"Root permissions required to uninstall {package}.")
+
+    # Execute actions
+    exec_actions(actions, dry_run=args.dry_run)
+
+    p("")
+    line_ok(f"Package '{package}' uninstalled successfully")
+
+# -----------------------------
+# Optimize system command
+# -----------------------------
+def cmd_optimize(args: argparse.Namespace) -> None:
+    """Optimize system by rebuilding databases and restarting services."""
+    section("System Optimization")
+
+    actions = []
+
+    # Determine what to optimize
+    optimize_all = args.all or not (args.database or args.network or args.services or args.clear_cache)
+
+    # 1. Database optimization
+    if optimize_all or args.database:
+        logger.info("Adding database optimization tasks")
+
+        # updatedb - locate database
+        if which("updatedb"):
+            actions.append(Action("Rebuild locate database", ["updatedb"], root=True))
+
+        # mandb - manual pages database
+        if which("mandb"):
+            actions.append(Action("Update man pages database", ["mandb"], root=True))
+
+        # ldconfig - dynamic linker cache
+        if which("ldconfig"):
+            actions.append(Action("Rebuild dynamic linker cache", ["ldconfig"], root=True))
+
+        # fc-cache - font cache
+        if which("fc-cache"):
+            actions.append(Action("Refresh font cache", ["fc-cache", "-fv"], root=False))
+
+        # update-mime-database
+        if which("update-mime-database"):
+            actions.append(Action("Update MIME database",
+                                 ["update-mime-database", "/usr/share/mime"], root=True))
+
+        # update-desktop-database
+        if which("update-desktop-database"):
+            actions.append(Action("Update desktop database",
+                                 ["update-desktop-database"], root=True))
+
+    # 2. Network optimization
+    if optimize_all or args.network:
+        logger.info("Adding network optimization tasks")
+
+        # Flush DNS cache (systemd-resolved)
+        if which("systemd-resolve") or which("resolvectl"):
+            # Use resolvectl on newer systems, fallback to systemd-resolve
+            cmd = "resolvectl" if which("resolvectl") else "systemd-resolve"
+            actions.append(Action("Flush DNS cache", [cmd, "flush-caches"], root=True))
+
+        # Restart NetworkManager
+        if which("systemctl"):
+            # Check if NetworkManager is active before restarting
+            try:
+                result = capture(["systemctl", "is-active", "NetworkManager"])
+                if "active" in result:
+                    actions.append(Action("Restart NetworkManager",
+                                        ["systemctl", "restart", "NetworkManager"], root=True))
+            except Exception:
+                pass
+
+        # Clear ARP cache
+        if which("ip"):
+            actions.append(Action("Clear ARP cache",
+                                 ["ip", "-s", "-s", "neigh", "flush", "all"], root=True))
+
+    # 3. Services optimization
+    if optimize_all or args.services:
+        logger.info("Adding services optimization tasks")
+
+        if which("systemctl"):
+            # Reload systemd daemon
+            actions.append(Action("Reload systemd daemon",
+                                ["systemctl", "daemon-reload"], root=True))
+
+            # Reset failed units
+            actions.append(Action("Reset failed systemd units",
+                                ["systemctl", "reset-failed"], root=True))
+
+    # 4. Memory cache clearing (DANGEROUS - requires explicit flag)
+    if args.clear_cache:
+        logger.warning("Clear cache flag enabled - this can cause temporary performance degradation")
+        p("")
+        line_warn("⚠️  Clearing page cache can cause temporary system slowdown!")
+        line_warn("⚠️  This will drop clean caches and may impact running applications.")
+        p("")
+
+        if confirm("Are you SURE you want to clear page cache?", False):
+            # sync + drop caches
+            actions.append(Action("Sync filesystems", ["sync"], root=True))
+            actions.append(Action("Clear page cache",
+                                ["sh", "-c", "echo 3 > /proc/sys/vm/drop_caches"], root=True))
+        else:
+            p("Cache clearing cancelled.")
+
+    # Check if there are any actions to perform
+    if not actions:
+        line_warn("No optimization tasks selected or available.")
+        p("\nUse flags to specify what to optimize:")
+        p("  --all          All optimizations (default)")
+        p("  --database     Rebuild system databases")
+        p("  --network      Optimize network (DNS, NetworkManager, ARP)")
+        p("  --services     Optimize systemd services")
+        p("  --clear-cache  Clear page cache (DANGEROUS)")
+        return
+
+    # Show plan
+    p("")
+    show_plan(actions, "Optimization Plan")
+    p("")
+
+    # Confirm and execute
+    if not confirm("Proceed with optimization?", args.yes):
+        p("Cancelled.")
+        return
+
+    # Check root permissions if needed
+    needs_root = any(a.root for a in actions)
+    if needs_root and not is_root():
+        maybe_reexec_with_sudo("Root permissions required for system optimization.")
+
+    # Execute actions
+    exec_actions(actions, dry_run=args.dry_run)
+
+    p("")
+    line_ok("System optimization completed")
+
+# -----------------------------
+# Whitelist management command
+# -----------------------------
+def cmd_whitelist(args: argparse.Namespace) -> None:
+    """Manage whitelist of protected paths."""
+    section("Whitelist Management")
+
+    ensure_config_files()
+    path = whitelist_path()
+
+    # Handle --add flag
+    if args.add:
+        patterns = load_whitelist()
+        pattern = args.add.strip()
+
+        # Check if pattern already exists
+        if pattern in patterns:
+            line_warn(f"Pattern already in whitelist: {pattern}")
+            return
+
+        # Add pattern to file
+        with open(path, 'a', encoding='utf-8') as f:
+            f.write(f"{pattern}\n")
+
+        logger.info(f"Added pattern to whitelist: {pattern}")
+        line_ok(f"Added to whitelist: {pattern}")
+        p("")
+        p(f"Total patterns: {len(patterns) + 1}")
+        return
+
+    # Handle --remove flag
+    if args.remove:
+        patterns = load_whitelist()
+        pattern = args.remove.strip()
+
+        # Check if pattern exists
+        if pattern not in patterns:
+            line_warn(f"Pattern not found in whitelist: {pattern}")
+            p("\nCurrent patterns:")
+            for p_existing in patterns:
+                p(f"  - {p_existing}")
+            return
+
+        # Remove pattern from list
+        patterns.remove(pattern)
+
+        # Read original file to preserve comments
+        original_lines = path.read_text(encoding='utf-8').splitlines()
+        new_lines = []
+
+        for line in original_lines:
+            stripped = line.strip()
+            # Keep comments and empty lines
+            if not stripped or stripped.startswith("#"):
+                new_lines.append(line)
+            # Keep patterns that are not the one to remove
+            elif os.path.expanduser(stripped) != pattern:
+                new_lines.append(line)
+
+        # Write back
+        path.write_text("\n".join(new_lines) + "\n", encoding='utf-8')
+
+        logger.info(f"Removed pattern from whitelist: {pattern}")
+        line_ok(f"Removed from whitelist: {pattern}")
+        p("")
+        p(f"Total patterns: {len(patterns)}")
+        return
+
+    # Handle --test flag
+    if args.test:
+        patterns = load_whitelist()
+        test_path = args.test.strip()
+
+        if is_whitelisted(test_path, patterns):
+            line_ok(f"✓ Protected (whitelisted): {test_path}")
+            p("")
+            p("Matching pattern(s):")
+            for pat in patterns:
+                if fnmatch.fnmatch(test_path, pat):
+                    p(f"  - {pat}")
+        else:
+            line_warn(f"✗ NOT protected: {test_path}")
+            p("")
+            p("Tip: Add pattern with:")
+            p(f"  lm whitelist --add '{test_path}'")
+        return
+
+    # Handle --edit flag
+    if args.edit:
+        editor = os.environ.get("EDITOR")
+        if not editor:
+            line_warn("$EDITOR environment variable not set")
+            p("\nSet your editor with:")
+            p("  export EDITOR=nano    # or vim, code, etc.")
+            return
+
+        logger.info(f"Opening whitelist in editor: {editor}")
+        run([editor, str(path)], dry_run=False, check=False)
+        return
+
+    # Default: show whitelist with table
+    patterns = load_whitelist()
+
+    # Read all lines to get comments too
+    all_lines = path.read_text(encoding='utf-8').splitlines() if path.exists() else []
+
+    if not patterns:
+        p("Whitelist is empty.")
+        p("")
+        p("Add patterns to protect paths from cleanup:")
+        p("  lm whitelist --add '/home/*/projects/*'")
+        p("  lm whitelist --add '/var/log/important.log'")
+        p("")
+        p("Other commands:")
+        p("  lm whitelist --test /path/to/file")
+        p("  lm whitelist --edit")
+        return
+
+    # Show table with patterns
+    p(f"Whitelist file: {path}")
+    p("")
+
+    rows = []
+    for i, pattern in enumerate(patterns, 1):
+        rows.append([str(i), pattern])
+
+    table("Protected Patterns", ["#", "Pattern"], rows)
+
+    p("")
+    p(f"Total: {len(patterns)} pattern(s)")
+    p("")
+    p("Commands:")
+    p("  lm whitelist --add PATTERN      Add new pattern")
+    p("  lm whitelist --remove PATTERN   Remove pattern")
+    p("  lm whitelist --test PATH        Test if path is protected")
+    p("  lm whitelist --edit             Edit in $EDITOR")
+
+# -----------------------------
+# Config command
+# -----------------------------
+def cmd_config(args: argparse.Namespace) -> None:
+    """Manage configuration file."""
+    section("Configuration Management")
+
+    config_path = config_file_path()
+
+    # Handle --reset flag
+    if hasattr(args, 'reset') and args.reset:
+        if not confirm("Reset configuration to defaults?", False):
+            p("Cancelled.")
+            return
+
+        config = default_config()
+        if save_config(config):
+            line_ok(f"Configuration reset to defaults: {config_path}")
+        else:
+            line_warn("Failed to reset configuration")
+        return
+
+    # Handle --edit flag
+    if hasattr(args, 'edit') and args.edit:
+        # Ensure config exists
+        if not config_path.exists():
+            p("Config file doesn't exist yet. Creating with defaults...")
+            save_config(default_config())
+
+        editor = os.environ.get("EDITOR")
+        if not editor:
+            line_warn("$EDITOR environment variable not set")
+            p("\nSet your editor with:")
+            p("  export EDITOR=nano    # or vim, code, etc.")
+            return
+
+        logger.info(f"Opening config in editor: {editor}")
+        run([editor, str(config_path)], dry_run=False, check=False)
+        return
+
+    # Default: show configuration
+    p(f"Configuration file: {config_path}")
+    p("")
+
+    if not config_path.exists():
+        line_warn("Config file doesn't exist yet")
+        p("")
+        p("The config file will be created automatically when needed,")
+        p("or you can create it now with:")
+        p("  lm config --reset")
+        p("")
+        p("Default configuration:")
+        config = default_config()
+    else:
+        if tomllib is None:
+            line_warn("TOML library not available")
+            p("Install tomli to read configuration:")
+            p("  pip install tomli")
+            return
+
+        config = load_config()
+
+    # Display configuration
+    p("")
+    for section_name, section_values in config.items():
+        p(f"[bold cyan][{section_name}][/bold cyan]" if RICH else f"[{section_name}]")
+        for key, value in section_values.items():
+            if isinstance(value, list):
+                p(f"  {key} = [")
+                for item in value:
+                    p(f"    {repr(item)},")
+                p("  ]")
+            else:
+                p(f"  {key} = {repr(value)}")
+        p("")
+
+    p("Commands:")
+    p("  lm config             Show current configuration")
+    p("  lm config --edit      Edit configuration in $EDITOR")
+    p("  lm config --reset     Reset to default configuration")
 
 # -----------------------------
 # Simple interactive menu
@@ -2251,6 +3154,8 @@ def main() -> None:
     )
     ap.add_argument("--dry-run", action="store_true", help="Preview only, no actions executed (clean only).")
     ap.add_argument("--yes", action="store_true", help="Assume 'yes' for confirmations (clean only).")
+    ap.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging (DEBUG level).")
+    ap.add_argument("--log-file", type=str, metavar="PATH", help="Write logs to specified file.")
 
     sp = ap.add_subparsers(dest="cmd")
 
@@ -2310,10 +3215,33 @@ def main() -> None:
     add_system_flags(sp_clean_system)
     add_docker_flags(sp_clean_docker)
 
-    sp_uninstall = sp.add_parser("uninstall", help="Remove LinuxMole from this system.")
+    # Uninstall app command (new)
+    sp_uninstall = sp.add_parser("uninstall", help="Uninstall apps with all configs (APT/Snap/Flatpak).")
+    sp_uninstall.add_argument("package", nargs="?", help="Package name to uninstall.")
+    sp_uninstall.add_argument("--purge", action="store_true", help="Remove configs and user data.")
+    sp_uninstall.add_argument("--list-orphans", action="store_true", help="List orphaned packages (APT).")
+    sp_uninstall.add_argument("--autoremove", action="store_true", help="Run apt autoremove.")
+    sp_uninstall.add_argument("--broken", action="store_true", help="Fix broken packages (APT).")
+    sp_uninstall.add_argument("--dry-run", action="store_true", help="Preview only, no actions executed.")
+    sp_uninstall.add_argument("--yes", action="store_true", help="Assume 'yes' for confirmations.")
+
+    # Self-uninstall LinuxMole (renamed from old "uninstall")
+    sp_self_uninstall = sp.add_parser("self-uninstall", help="Remove LinuxMole from this system.")
+
+    # Optimize system command
+    sp_optimize = sp.add_parser("optimize", help="Optimize system (rebuild DBs, flush caches, restart services).")
+    sp_optimize.add_argument("--all", action="store_true", help="All optimizations (default).")
+    sp_optimize.add_argument("--database", action="store_true", help="Rebuild system databases (locate, man, ldconfig, fonts, MIME).")
+    sp_optimize.add_argument("--network", action="store_true", help="Network optimization (flush DNS, restart NetworkManager, clear ARP).")
+    sp_optimize.add_argument("--services", action="store_true", help="Optimize systemd services (daemon-reload, reset failed units).")
+    sp_optimize.add_argument("--clear-cache", action="store_true", help="Clear page cache (DANGEROUS - can cause slowdown).")
+    sp_optimize.add_argument("--dry-run", action="store_true", help="Preview only, no actions executed.")
+    sp_optimize.add_argument("--yes", action="store_true", help="Assume 'yes' for confirmations.")
+
     sp_analyze = sp.add_parser("analyze", help="Analyze disk usage.")
     sp_analyze.add_argument("--path", default=".", help="Path to analyze.")
     sp_analyze.add_argument("--top", type=int, default=10, help="Number of entries to show.")
+    sp_analyze.add_argument("--tui", action="store_true", help="Launch interactive TUI (requires textual).")
 
     sp_purge = sp.add_parser("purge", help="Clean project build artifacts.")
     sp_purge.add_argument("--paths", action="store_true", help="Show or edit purge paths.")
@@ -2321,19 +3249,37 @@ def main() -> None:
 
     sp_installer = sp.add_parser("installer", help="Find and remove installer files.")
     sp_installer.add_argument("--yes", action="store_true", help="Assume 'yes' for confirmations.")
-    sp_whitelist = sp.add_parser("whitelist", help="Show or edit whitelist.")
+
+    # Whitelist management
+    sp_whitelist = sp.add_parser("whitelist", help="Manage whitelist of protected paths.")
+    sp_whitelist.add_argument("--add", type=str, metavar="PATTERN", help="Add glob pattern to whitelist.")
+    sp_whitelist.add_argument("--remove", type=str, metavar="PATTERN", help="Remove glob pattern from whitelist.")
+    sp_whitelist.add_argument("--test", type=str, metavar="PATH", help="Test if path is protected.")
     sp_whitelist.add_argument("--edit", action="store_true", help="Open whitelist in $EDITOR.")
+
+    # Configuration management
+    sp_config = sp.add_parser("config", help="Manage configuration file.")
+    sp_config.add_argument("--edit", action="store_true", help="Open config in $EDITOR.")
+    sp_config.add_argument("--reset", action="store_true", help="Reset to default configuration.")
+
     sp_update = sp.add_parser("update", help="Update LinuxMole (pipx).")
 
     args = ap.parse_args()
+
+    # Setup logging
+    setup_logging(
+        verbose=getattr(args, 'verbose', False),
+        log_file=getattr(args, 'log_file', None)
+    )
+    logger.debug(f"Command invoked: {' '.join(sys.argv)}")
 
     if args.cmd is None:
         print_help()
         return
     clear_screen()
     print_header()
-    if args.cmd != "clean" and (args.dry_run or args.yes):
-        line_warn("--dry-run and --yes apply to clean only.")
+    if args.cmd not in ("clean", "uninstall", "optimize") and (args.dry_run or args.yes):
+        line_warn("--dry-run and --yes apply to clean, uninstall, and optimize only.")
         return
     if args.cmd == "status":
         target = args.status_target or "all"
@@ -2352,6 +3298,8 @@ def main() -> None:
         else:
             cmd_clean_all(args)
     elif args.cmd == "uninstall":
+        cmd_uninstall_app(args)
+    elif args.cmd == "self-uninstall":
         if not is_root():
             maybe_reexec_with_sudo("Root permissions are required to uninstall LinuxMole.")
         if not confirm("Uninstall LinuxMole?", False):
@@ -2360,6 +3308,8 @@ def main() -> None:
         run(["rm", "-rf", "/opt/linuxmole"], dry_run=False, check=False)
         run(["rm", "-f", "/usr/local/bin/lm"], dry_run=False, check=False)
         p("LinuxMole removed.")
+    elif args.cmd == "optimize":
+        cmd_optimize(args)
     elif args.cmd == "analyze":
         cmd_analyze(args)
     elif args.cmd == "purge":
@@ -2367,17 +3317,9 @@ def main() -> None:
     elif args.cmd == "installer":
         cmd_installer(args)
     elif args.cmd == "whitelist":
-        ensure_config_files()
-        path = whitelist_path()
-        if args.edit:
-            editor = os.environ.get("EDITOR")
-            if not editor:
-                line_warn("Set $EDITOR to use --edit")
-                return
-            run([editor, str(path)], dry_run=False, check=False)
-        else:
-            p(f"Whitelist file: {path}")
-            p(path.read_text(encoding="utf-8", errors="ignore"))
+        cmd_whitelist(args)
+    elif args.cmd == "config":
+        cmd_config(args)
     elif args.cmd == "update":
         if not which("pipx"):
             line_warn("pipx not found. Install pipx to use update.")

@@ -10,7 +10,11 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
 authors = [{name = "Andres Lorente", email = "info@hackingepico.com"}]
-dependencies = ["rich>=13.0.0"]
+dependencies = [
+  "rich>=13.0.0",
+  "textual>=0.47.0",
+  "tomli>=2.0.0; python_version < '3.11'"
+]
 keywords = ["linux", "docker", "cleanup", "maintenance", "disk-space", "cli", "system-tools", "devops", "server", "python"]
 classifiers = [
   "License :: OSI Approved :: MIT License",
@@ -30,9 +34,51 @@ Homepage = "https://github.com/4ndymcfly/linux-mole"
 Repository = "https://github.com/4ndymcfly/linux-mole"
 Issues = "https://github.com/4ndymcfly/linux-mole/issues"
 
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0.0",
+  "pytest-cov>=4.0.0",
+  "pytest-mock>=3.10.0"
+]
+
 [project.scripts]
 lm = "lm:main"
 
 [tool.setuptools]
 py-modules = ["lm"]
 license-files = ["LICENSE"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+  "--verbose",
+  "--cov=lm",
+  "--cov-report=term-missing",
+  "--cov-report=html",
+  "--cov-fail-under=15"
+]
+# NOTE: Coverage target is 15% for Phase 1 (basic infrastructure tests).
+# Target will increase to 40% after modularization (Phase 4, Task #10).
+# Final target: 70%+ after all command implementations are tested.
+
+[tool.coverage.run]
+source = ["lm"]
+omit = [
+  "tests/*",
+  "*/__pycache__/*",
+  "*/site-packages/*"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+  "if sys.version_info"
+]
