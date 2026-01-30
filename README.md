@@ -13,6 +13,41 @@
 
 LinuxMole is a Mole-inspired CLI for Linux servers with Docker. It focuses on safe, transparent maintenance with previews, structured output, and explicit confirmation.
 
+## Project Status
+
+> **Note:** LinuxMole is under active development. Core functionality is complete and tested, with additional features being implemented.
+
+| Aspect | Status |
+|--------|--------|
+| **Version** | 1.0.0 |
+| **Tests** | 120 passing (100%) |
+| **Coverage** | 14.98% |
+| **Architecture** | Modular (28 modules) |
+| **CI/CD** | ✅ GitHub Actions (Python 3.8-3.12) |
+| **Completion** | 9/11 tasks (81.8%) |
+
+### Implemented Features ✅
+
+- ✅ Complete system and Docker status monitoring
+- ✅ Safe cleanup operations (system + Docker)
+- ✅ Disk usage analyzer with interactive TUI
+- ✅ Application uninstaller (apt/snap/flatpak)
+- ✅ Whitelist management and config file support
+- ✅ Automated testing and CI/CD pipeline
+- ✅ Python 3.8-3.12 compatibility
+- ✅ Logging and error handling
+- ✅ Modular architecture
+
+### In Progress 🚧
+
+- TUI launcher integration (low priority)
+
+### Coming Soon 🔜
+
+- Comprehensive documentation (commands, configuration, examples)
+- Additional test coverage
+- Performance optimizations
+
 ## Features
 
 - Mole-like console UX with structured sections and previews
