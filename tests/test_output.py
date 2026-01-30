@@ -31,9 +31,11 @@ class TestVersionAndBanner:
     """Tests for version and banner."""
 
     def test_version_constant(self):
-        """Test VERSION constant exists."""
+        """Test VERSION constant exists and has correct format."""
         assert hasattr(lm, "VERSION")
-        assert lm.VERSION == "1.0.0"
+        # Verify version follows semver format (X.Y.Z)
+        import re
+        assert re.match(r'^\d+\.\d+\.\d+$', lm.VERSION), f"VERSION should be semver format, got: {lm.VERSION}"
 
     def test_banner_constant(self):
         """Test BANNER constant exists."""

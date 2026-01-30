@@ -20,7 +20,9 @@ class TestMainFunction:
         with patch.object(sys, "argv", ["lm", "--version"]):
             lm.main()
             captured = capsys.readouterr()
-            assert "1.0.0" in captured.out
+            # Verify version output contains LinuxMole and a version number
+            assert "LinuxMole" in captured.out
+            assert lm.VERSION in captured.out
 
     def test_main_help_flag(self, capsys):
         """Test --help flag."""
