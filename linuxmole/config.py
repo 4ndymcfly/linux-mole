@@ -29,20 +29,17 @@ def config_dir() -> Path:
 
 def whitelist_path() -> Path:
     """Get the whitelist file path."""
-    import lm
-    return lm.config_dir() / "whitelist.txt"
+    return config_dir() / "whitelist.txt"
 
 
 def purge_paths_file() -> Path:
     """Get the purge paths file path."""
-    import lm
-    return lm.config_dir() / "purge_paths"
+    return config_dir() / "purge_paths"
 
 
 def config_file_path() -> Path:
     """Get the config file path."""
-    import lm
-    return lm.config_dir() / "config.toml"
+    return config_dir() / "config.toml"
 
 
 def default_config() -> Dict[str, Any]:
@@ -90,22 +87,20 @@ def default_config() -> Dict[str, Any]:
 
 def load_config() -> Dict[str, Any]:
     """Load configuration from config.toml or return defaults."""
-    import lm
-    config_path = lm.config_file_path()
+    config_path = config_file_path()
 
     if not config_path.exists():
         logger.debug("Config file not found, using defaults")
         return default_config()
 
-    # Check tomllib availability from lm to allow mocking
-    toml_lib = getattr(lm, 'tomllib', None) if hasattr(lm, 'tomllib') else tomllib
-    if toml_lib is None:
+    # Check tomllib availability
+    if tomllib is None:
         logger.warning("TOML library not available, using defaults")
         return default_config()
 
     try:
         with open(config_path, "rb") as f:
-            config = toml_lib.load(f)
+            config = tomllib.load(f)
         logger.debug(f"Loaded config from {config_path}")
         return config
     except Exception as e:
@@ -115,8 +110,7 @@ def load_config() -> Dict[str, Any]:
 
 def save_config(config: Dict[str, Any]) -> bool:
     """Save configuration to config.toml."""
-    import lm
-    config_path = lm.config_file_path()
+    config_path = config_file_path()
 
     try:
         # Ensure config directory exists
@@ -154,8 +148,7 @@ def save_config(config: Dict[str, Any]) -> bool:
 
 def load_whitelist() -> List[str]:
     """Load whitelist patterns from file."""
-    import lm
-    path = lm.whitelist_path()
+    path = whitelist_path()
     if not path.exists():
         return []
     patterns = []
@@ -177,20 +170,18 @@ def is_whitelisted(path: str, patterns: List[str]) -> bool:
 
 def ensure_config_files() -> None:
     """Ensure configuration files exist."""
-    import lm
-    cfg = lm.config_dir()
+    cfg = config_dir()
     cfg.mkdir(parents=True, exist_ok=True)
-    if not lm.whitelist_path().exists():
-        lm.whitelist_path().write_text("# Add glob patterns to protect paths\n", encoding="utf-8")
-    if not lm.purge_paths_file().exists():
-        lm.purge_paths_file().write_text("# One path per line\n", encoding="utf-8")
+    if not whitelist_path().exists():
+        whitelist_path().write_text("# Add glob patterns to protect paths\n", encoding="utf-8")
+    if not purge_paths_file().exists():
+        purge_paths_file().write_text("# One path per line\n", encoding="utf-8")
 
 
 def load_purge_paths() -> List[str]:
     """Load purge paths from config file."""
-    import lm
-    lm.ensure_config_files()
-    path = lm.purge_paths_file()
+    ensure_config_files()
+    path = purge_paths_file()
     res = []
     for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
         line = line.strip()
