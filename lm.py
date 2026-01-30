@@ -89,7 +89,7 @@ BANNER = r""" _      _                     __  __       _
 |______|_|_| |_|\__,_/_/\_\  |_|  |_|\___/|_|\___|"""
 PROJECT_URL = "https://github.com/4ndymcfly/linux-mole"
 TAGLINE = "Safe maintenance for Linux + Docker."
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 
 
 def p(text: str = "") -> None:
