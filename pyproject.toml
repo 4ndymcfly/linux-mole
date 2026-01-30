@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "linuxmole"
-version = "1.0.0"
+version = "1.0.1"
 description = "Safe, Mole-inspired maintenance for Linux + Docker."
 readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
-authors = [{name = "Andres Lorente", email = "info@hackingepico.com"}]
+authors = [{name = "Andrés Lorente (@4ndymcfly)", email = "info@hackingepico.com"}]
 dependencies = [
   "rich>=13.0.0",
   "textual>=0.47.0",
