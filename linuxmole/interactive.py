@@ -700,6 +700,17 @@ def interactive_simple() -> None:
         elif choice == "1":  # Status (all)
             clear_screen()
             print_header()
+
+            # Check root requirement for Docker information
+            if not is_root() and which("docker") and not dry_run_mode:
+                from linuxmole.constants import RICH, console
+                if RICH and console:
+                    console.print("\n  [yellow]ℹ[/yellow]  [bold]Root Mode required for complete Docker information[/bold]")
+                    console.print("     Some Docker logs and details may not be available in Normal Mode\n")
+                else:
+                    p("\n  ℹ  Root Mode required for complete Docker information")
+                    p("     Some Docker logs and details may not be available in Normal Mode\n")
+
             args = argparse.Namespace(paths=False)
             cmd_status_all(args)
             pause()
@@ -714,6 +725,17 @@ def interactive_simple() -> None:
         elif choice == "3":  # Status docker
             clear_screen()
             print_header()
+
+            # Check root requirement
+            if not is_root() and which("docker") and not dry_run_mode:
+                from linuxmole.constants import RICH, console
+                if RICH and console:
+                    console.print("\n  [yellow]ℹ[/yellow]  [bold]Root Mode required for complete Docker information[/bold]")
+                    console.print("     Some Docker logs and details may not be available in Normal Mode\n")
+                else:
+                    p("\n  ℹ  Root Mode required for complete Docker information")
+                    p("     Some Docker logs and details may not be available in Normal Mode\n")
+
             args = argparse.Namespace(top_logs=20)
             cmd_docker_status(args)
             pause()
@@ -728,12 +750,38 @@ def interactive_simple() -> None:
         elif choice == "5":  # Clean docker
             clear_screen()
             print_header()
+
+            # Root required for Docker cleanup
+            if not is_root() and not dry_run_mode:
+                from linuxmole.constants import RICH, console
+                if RICH and console:
+                    console.print("\n  [red]⚠[/red]  [bold red]Root Mode required for Docker cleanup operations[/bold red]")
+                    console.print("     Please restart LinuxMole in Root Mode to use this feature\n")
+                else:
+                    p("\n  ⚠  Root Mode required for Docker cleanup operations")
+                    p("     Please restart LinuxMole in Root Mode to use this feature\n")
+                pause()
+                continue
+
             simple_docker_clean(dry_run_mode)
             pause()
 
         elif choice == "6":  # Clean system
             clear_screen()
             print_header()
+
+            # Root required for system cleanup
+            if not is_root() and not dry_run_mode:
+                from linuxmole.constants import RICH, console
+                if RICH and console:
+                    console.print("\n  [red]⚠[/red]  [bold red]Root Mode required for system cleanup operations[/bold red]")
+                    console.print("     Please restart LinuxMole in Root Mode to use this feature\n")
+                else:
+                    p("\n  ⚠  Root Mode required for system cleanup operations")
+                    p("     Please restart LinuxMole in Root Mode to use this feature\n")
+                pause()
+                continue
+
             simple_clean_system(dry_run_mode)
             pause()
 
