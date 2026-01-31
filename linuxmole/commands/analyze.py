@@ -40,13 +40,17 @@ if TEXTUAL:
             if not self.path:
                 return "[dim]Select a directory to see details[/dim]"
 
-            percentage = (self.dir_size / self.total_size * 100) if self.total_size > 0 else 0
+            # Ensure total_size is at least as large as dir_size to avoid calculation errors
+            actual_total = max(self.total_size, self.dir_size, 1)
+
+            # Calculate percentage safely (cap at 100%)
+            percentage = min((self.dir_size / actual_total * 100), 100.0)
             size_str = format_size(self.dir_size)
-            total_str = format_size(self.total_size)
+            total_str = format_size(actual_total)
 
             # Create visual progress bar (like ncdu)
             bar_width = 40
-            filled = int((percentage / 100) * bar_width)
+            filled = max(0, min(int((percentage / 100) * bar_width), bar_width))
             bar_visual = "█" * filled + "░" * (bar_width - filled)
 
             # Color based on percentage
