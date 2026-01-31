@@ -32,6 +32,9 @@ jobs:
 
     - name: Generate changelog
       id: changelog
+      env:
+        VERSION: ${{ steps.get_version.outputs.VERSION }}
+        TAG: ${{ steps.get_version.outputs.TAG }}
       run: |
         # Get commits since last tag
         LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
