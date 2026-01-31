@@ -83,7 +83,7 @@ jobs:
         CHANGELOG="${CHANGELOG}pipx upgrade linuxmole\n"
         CHANGELOG="${CHANGELOG}\`\`\`\n\n"
         CHANGELOG="${CHANGELOG}**Versión:** ${VERSION}\n"
-        CHANGELOG="${CHANGELOG}**Changelog completo:** https://github.com/\${{ github.repository }}/compare/${LAST_TAG}...${TAG}"
+        CHANGELOG="${CHANGELOG}**Changelog completo:** https://github.com/${GITHUB_REPOSITORY}/compare/${LAST_TAG}...${TAG}"
 
         # Save to output
         echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
