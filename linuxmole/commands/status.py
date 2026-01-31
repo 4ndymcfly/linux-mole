@@ -93,20 +93,26 @@ def cmd_status_system(_: argparse.Namespace) -> None:
         disk_b = disk_usage_bytes("/")
     if cpu is not None:
         line_do(f"CPU     {bar(cpu, 30)}  {cpu:5.1f}%")
+        p("")
     else:
         line_skip("CPU usage unavailable")
+        p("")
     if mem_b:
         total, used, _ = mem_b
         pct = 0.0 if total == 0 else (used / total) * 100.0
         line_do(f"Memory  {bar(pct, 30)}  {pct:5.1f}%   ({format_size(used)}/{format_size(total)})")
+        p("")
     else:
         line_skip("Memory usage unavailable")
+        p("")
     if disk_b:
         total, used, _ = disk_b
         pct = 0.0 if total == 0 else (used / total) * 100.0
         line_do(f"Disk    {bar(pct, 30)}  {pct:5.1f}%   ({format_size(used)}/{format_size(total)})")
+        p("")
     else:
         line_skip("Disk usage unavailable")
+        p("")
 
     section("Health score")
     score = 100
