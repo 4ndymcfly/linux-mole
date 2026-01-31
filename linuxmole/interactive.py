@@ -589,18 +589,18 @@ def simple_self_uninstall() -> None:
 def interactive_simple() -> None:
     """Run the modern interactive menu with improved UX."""
     from linuxmole.constants import RICH, console
-    import os
+    import sys
 
     # ═══════════════════════════════════════════════════════════
     # STEP 1: Determine execution mode
     # ═══════════════════════════════════════════════════════════
 
-    # Check if we're coming from dry-run re-execution
-    dry_run_from_env = os.environ.get("LINUXMOLE_DRY_RUN") == "1"
+    # Check if we're coming from dry-run re-execution via --dry-run flag
+    dry_run_from_args = "--dry-run" in sys.argv
 
     # If already running as root, check if it's dry-run mode or normal root mode
     if is_root():
-        dry_run_mode = dry_run_from_env  # True if from dry-run, False if normal root
+        dry_run_mode = dry_run_from_args  # True if from dry-run, False if normal root
         # Go directly to main menu (skip mode selection)
     else:
         # Not root - show mode selection

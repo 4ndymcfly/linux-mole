@@ -201,7 +201,7 @@ def maybe_reexec_with_sudo(reason: str = "", dry_run: bool = False) -> None:
 
     Args:
         reason: Explanation of why root access is needed (optional)
-        dry_run: If True, set LINUXMOLE_DRY_RUN=1 env var for dry-run mode
+        dry_run: If True, add --dry-run flag for dry-run mode
     """
     if is_root():
         return
@@ -214,10 +214,11 @@ def maybe_reexec_with_sudo(reason: str = "", dry_run: bool = False) -> None:
         p("")
         sys.exit(0)
 
-    # Set environment variable for dry-run mode if needed
-    if dry_run:
-        os.environ["LINUXMOLE_DRY_RUN"] = "1"
+    # Add --dry-run flag if dry-run mode
+    argv = sys.argv.copy()
+    if dry_run and "--dry-run" not in argv:
+        argv.append("--dry-run")
 
-    args = ["sudo", sys.executable] + sys.argv
+    args = ["sudo", sys.executable] + argv
     logger.debug(f"Re-executing with sudo: {args}")
     os.execvp("sudo", args)
