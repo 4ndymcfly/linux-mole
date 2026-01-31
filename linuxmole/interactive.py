@@ -88,14 +88,16 @@ def print_mode_banner(dry_run_mode: bool) -> None:
     """Print modern mode indicator banner."""
     from linuxmole.constants import RICH, console
 
-    if is_root():
-        mode_text = "ROOT MODE"
-        mode_icon = "⚠️"
-        mode_color = "red"
-    elif dry_run_mode:
+    # Dry-run mode has priority over root detection
+    # (dry-run can run with root permissions but should show DRY-RUN MODE)
+    if dry_run_mode:
         mode_text = "DRY-RUN MODE"
         mode_icon = "🔍"
         mode_color = "yellow"
+    elif is_root():
+        mode_text = "ROOT MODE"
+        mode_icon = "⚠️"
+        mode_color = "red"
     else:
         mode_text = "NORMAL MODE"
         mode_icon = "✓"
