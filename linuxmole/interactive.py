@@ -673,58 +673,126 @@ def interactive_simple() -> None:
         else:
             p("═══════════════════════════════════════════════════════════")
 
+        # Build dynamic menu with only available options
+        menu_options = []
+        option_num = 1
+
         # ── MONITORING & ANALYSIS ──
         print_category_header("🔵", "MONITORING & ANALYSIS")
+
+        menu_options.append((option_num, "status_all"))
         if RICH and console:
-            console.print("     [cyan]1[/cyan]   Status (System + Docker)")
-            console.print("     [cyan]2[/cyan]   Status System only")
-            console.print("     [cyan]3[/cyan]   Status Docker only")
-            console.print("     [cyan]4[/cyan]   Analyze Disk Usage [dim](with TUI)[/dim]")
+            console.print(f"     [cyan]{option_num}[/cyan]   Status (System + Docker)")
         else:
-            p("     1   Status (System + Docker)")
-            p("     2   Status System only")
-            p("     3   Status Docker only")
-            p("     4   Analyze Disk Usage (with TUI)")
+            p(f"     {option_num}   Status (System + Docker)")
+        option_num += 1
+
+        menu_options.append((option_num, "status_system"))
+        if RICH and console:
+            console.print(f"     [cyan]{option_num}[/cyan]   Status System only")
+        else:
+            p(f"     {option_num}   Status System only")
+        option_num += 1
+
+        menu_options.append((option_num, "status_docker"))
+        if RICH and console:
+            console.print(f"     [cyan]{option_num}[/cyan]   Status Docker only")
+        else:
+            p(f"     {option_num}   Status Docker only")
+        option_num += 1
+
+        menu_options.append((option_num, "analyze"))
+        if RICH and console:
+            console.print(f"     [cyan]{option_num}[/cyan]   Analyze Disk Usage [dim](with TUI)[/dim]")
+        else:
+            p(f"     {option_num}   Analyze Disk Usage (with TUI)")
+        option_num += 1
 
         # ── CLEANUP & MAINTENANCE ──
         print_category_header("🟢", "CLEANUP & MAINTENANCE")
+
+        menu_options.append((option_num, "clean_docker"))
         if RICH and console:
-            console.print("     [green]5[/green]   Clean Docker [dim](interactive)[/dim]")
-            console.print("     [green]6[/green]   Clean System [dim](interactive)[/dim]")
-            console.print("     [green]7[/green]   Purge Build Artifacts")
-            console.print("     [green]8[/green]   Remove Installer Files")
+            console.print(f"     [green]{option_num}[/green]   Clean Docker [dim](interactive)[/dim]")
         else:
-            p("     5   Clean Docker (interactive)")
-            p("     6   Clean System (interactive)")
-            p("     7   Purge Build Artifacts")
-            p("     8   Remove Installer Files")
+            p(f"     {option_num}   Clean Docker (interactive)")
+        option_num += 1
+
+        menu_options.append((option_num, "clean_system"))
+        if RICH and console:
+            console.print(f"     [green]{option_num}[/green]   Clean System [dim](interactive)[/dim]")
+        else:
+            p(f"     {option_num}   Clean System (interactive)")
+        option_num += 1
+
+        menu_options.append((option_num, "purge"))
+        if RICH and console:
+            console.print(f"     [green]{option_num}[/green]   Purge Build Artifacts")
+        else:
+            p(f"     {option_num}   Purge Build Artifacts")
+        option_num += 1
+
+        menu_options.append((option_num, "installer"))
+        if RICH and console:
+            console.print(f"     [green]{option_num}[/green]   Remove Installer Files")
+        else:
+            p(f"     {option_num}   Remove Installer Files")
+        option_num += 1
 
         # ── SYSTEM OPERATIONS ──
         print_category_header("🟡", "SYSTEM OPERATIONS")
+
+        menu_options.append((option_num, "uninstall"))
         if RICH and console:
-            console.print("     [yellow]9[/yellow]   Uninstall Applications")
-            console.print("    [yellow]10[/yellow]   Optimize System")
+            console.print(f"     [yellow]{option_num}[/yellow]   Uninstall Applications")
         else:
-            p("     9   Uninstall Applications")
-            p("    10   Optimize System")
+            p(f"     {option_num}   Uninstall Applications")
+        option_num += 1
+
+        # Optimize System - Only in Root Mode
+        if is_root():
+            menu_options.append((option_num, "optimize"))
+            if RICH and console:
+                console.print(f"     [yellow]{option_num}[/yellow]   Optimize System")
+            else:
+                p(f"     {option_num}   Optimize System")
+            option_num += 1
 
         # ── CONFIGURATION ──
         print_category_header("🟠", "CONFIGURATION")
+
+        menu_options.append((option_num, "whitelist"))
         if RICH and console:
-            console.print("    [bright_yellow]11[/bright_yellow]   Manage Whitelist")
-            console.print("    [bright_yellow]12[/bright_yellow]   Manage Configuration")
+            console.print(f"    [bright_yellow]{option_num}[/bright_yellow]   Manage Whitelist")
         else:
-            p("    11   Manage Whitelist")
-            p("    12   Manage Configuration")
+            p(f"    {option_num}   Manage Whitelist")
+        option_num += 1
+
+        menu_options.append((option_num, "config"))
+        if RICH and console:
+            console.print(f"    [bright_yellow]{option_num}[/bright_yellow]   Manage Configuration")
+        else:
+            p(f"    {option_num}   Manage Configuration")
+        option_num += 1
 
         # ── LINUXMOLE SYSTEM ──
-        print_category_header("🔴", "LINUXMOLE SYSTEM")
-        if RICH and console:
-            console.print("    [red]13[/red]   Update LinuxMole")
-            console.print("    [red]14[/red]   Self-Uninstall LinuxMole")
-        else:
-            p("    13   Update LinuxMole")
-            p("    14   Self-Uninstall LinuxMole")
+        # Update and Self-Uninstall - Only in Root Mode
+        if is_root():
+            print_category_header("🔴", "LINUXMOLE SYSTEM")
+
+            menu_options.append((option_num, "update"))
+            if RICH and console:
+                console.print(f"    [red]{option_num}[/red]   Update LinuxMole")
+            else:
+                p(f"    {option_num}   Update LinuxMole")
+            option_num += 1
+
+            menu_options.append((option_num, "self_uninstall"))
+            if RICH and console:
+                console.print(f"    [red]{option_num}[/red]   Self-Uninstall LinuxMole")
+            else:
+                p(f"    {option_num}   Self-Uninstall LinuxMole")
+            option_num += 1
 
         # Footer
         p("")
@@ -744,14 +812,39 @@ def interactive_simple() -> None:
                 console.print("\n  [dim]Exiting LinuxMole...[/dim]\n")
             return
 
-        # ── MONITORING & ANALYSIS ──
-        elif choice == "1":  # Status (all)
+        # Convert input to integer and find corresponding action
+        try:
+            choice_num = int(choice)
+        except ValueError:
+            if RICH and console:
+                console.print("\n  [red]✗[/red] Invalid option\n", style="bold")
+            else:
+                p("\n  ✗ Invalid option\n")
+            pause()
+            continue
+
+        # Find the action for this choice number
+        action = None
+        for num, act in menu_options:
+            if num == choice_num:
+                action = act
+                break
+
+        if not action:
+            if RICH and console:
+                console.print("\n  [red]✗[/red] Invalid option\n", style="bold")
+            else:
+                p("\n  ✗ Invalid option\n")
+            pause()
+            continue
+
+        # Execute the selected action
+        if action == "status_all":
             clear_screen()
             print_header()
 
             # Check root requirement for Docker information
             if not is_root() and which("docker") and not dry_run_mode:
-                from linuxmole.constants import RICH, console
                 if RICH and console:
                     console.print("\n  [yellow]ℹ  Root Mode required for complete Docker information[/yellow]")
                     console.print("     [yellow]Some Docker logs and details may not be available in Normal Mode[/yellow]\n")
@@ -763,20 +856,19 @@ def interactive_simple() -> None:
             cmd_status_all(args)
             pause()
 
-        elif choice == "2":  # Status system
+        elif action == "status_system":
             clear_screen()
             print_header()
             args = argparse.Namespace(paths=False)
             cmd_status_system(args)
             pause()
 
-        elif choice == "3":  # Status docker
+        elif action == "status_docker":
             clear_screen()
             print_header()
 
             # Check root requirement
             if not is_root() and which("docker") and not dry_run_mode:
-                from linuxmole.constants import RICH, console
                 if RICH and console:
                     console.print("\n  [yellow]ℹ  Root Mode required for complete Docker information[/yellow]")
                     console.print("     [yellow]Some Docker logs and details may not be available in Normal Mode[/yellow]\n")
@@ -788,20 +880,19 @@ def interactive_simple() -> None:
             cmd_docker_status(args)
             pause()
 
-        elif choice == "4":  # Analyze
+        elif action == "analyze":
             clear_screen()
             print_header()
             simple_analyze()
             pause()
 
         # ── CLEANUP & MAINTENANCE ──
-        elif choice == "5":  # Clean docker
+        elif action == "clean_docker":
             clear_screen()
             print_header()
 
             # Root required for Docker cleanup
             if not is_root() and not dry_run_mode:
-                from linuxmole.constants import RICH, console
                 if RICH and console:
                     console.print("\n  [red]⚠[/red]  [bold red]Root Mode required for Docker cleanup operations[/bold red]")
                     console.print("     Please restart LinuxMole in Root Mode to use this feature\n")
@@ -814,13 +905,12 @@ def interactive_simple() -> None:
             simple_docker_clean(dry_run_mode)
             pause()
 
-        elif choice == "6":  # Clean system
+        elif action == "clean_system":
             clear_screen()
             print_header()
 
             # Root required for system cleanup
             if not is_root() and not dry_run_mode:
-                from linuxmole.constants import RICH, console
                 if RICH and console:
                     console.print("\n  [red]⚠[/red]  [bold red]Root Mode required for system cleanup operations[/bold red]")
                     console.print("     Please restart LinuxMole in Root Mode to use this feature\n")
@@ -833,48 +923,41 @@ def interactive_simple() -> None:
             simple_clean_system(dry_run_mode)
             pause()
 
-        elif choice == "7":  # Purge
+        elif action == "purge":
             clear_screen()
             print_header()
             simple_purge()
             pause()
 
-        elif choice == "8":  # Installer
+        elif action == "installer":
             clear_screen()
             print_header()
             simple_installer()
             pause()
 
         # ── SYSTEM OPERATIONS ──
-        elif choice == "9":  # Uninstall
+        elif action == "uninstall":
             clear_screen()
             print_header()
             simple_uninstall()
             pause()
 
-        elif choice == "10":  # Optimize
+        elif action == "optimize":
             clear_screen()
             print_header()
             simple_optimize()
             pause()
 
         # ── CONFIGURATION ──
-        elif choice == "11":  # Whitelist
+        elif action == "whitelist":
             simple_whitelist()  # Ya tiene su propio loop
 
-        elif choice == "12":  # Config
+        elif action == "config":
             simple_config()
 
         # ── LINUXMOLE SYSTEM ──
-        elif choice == "13":  # Update
+        elif action == "update":
             simple_update()
 
-        elif choice == "14":  # Self-uninstall
+        elif action == "self_uninstall":
             simple_self_uninstall()
-
-        else:
-            if RICH and console:
-                console.print("\n  [red]✗[/red] Invalid option\n", style="bold")
-            else:
-                p("\n  ✗ Invalid option\n")
-            pause()
