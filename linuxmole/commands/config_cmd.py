@@ -27,6 +27,9 @@ def cmd_config(args: argparse.Namespace) -> None:
     """Manage configuration file."""
     section("Configuration Management")
 
+    from linuxmole.config import ensure_config_files
+    ensure_config_files()
+
     config_path = config_file_path()
 
     # Handle --reset flag
@@ -65,23 +68,13 @@ def cmd_config(args: argparse.Namespace) -> None:
     p(f"Configuration file: {config_path}")
     p("")
 
-    if not config_path.exists():
-        line_warn("Config file doesn't exist yet")
-        p("")
-        p("The config file will be created automatically when needed,")
-        p("or you can create it now with:")
-        p("  lm config --reset")
-        p("")
-        p("Default configuration:")
-        config = default_config()
-    else:
-        if tomllib is None:
-            line_warn("TOML library not available")
-            p("Install tomli to read configuration:")
-            p("  pip install tomli")
-            return
+    if tomllib is None:
+        line_warn("TOML library not available")
+        p("Install tomli to read configuration:")
+        p("  pip install tomli")
+        return
 
-        config = load_config()
+    config = load_config()
 
     # Display configuration
     p("")
