@@ -164,17 +164,17 @@ def format_size(n: Optional[int], unknown: bool = False) -> str:
 
 def bar(pct: float, width: int = 30) -> str:
     """
-    Generate a simple ASCII progress bar.
+    Generate a modern Unicode progress bar.
 
     Args:
         pct: Percentage (0-100)
         width: Width of the bar in characters
 
     Returns:
-        ASCII progress bar string
+        Unicode progress bar string (without percentage)
     """
     filled = int(width * pct / 100)
-    return "[" + "#" * filled + "-" * (width - filled) + f"] {pct:.1f}%"
+    return "[" + "█" * filled + "░" * (width - filled) + "]"
 
 
 def now_str() -> str:
