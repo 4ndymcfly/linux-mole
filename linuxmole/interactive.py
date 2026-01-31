@@ -67,6 +67,23 @@ def print_category_header(icon: str, title: str) -> None:
         p(f"\n  {icon} {title}")
 
 
+def print_submenu_header(title: str) -> None:
+    """Print modern submenu header with LinuxMole branding."""
+    from linuxmole.constants import RICH, console
+
+    clear_screen()
+    print_header()
+
+    if RICH and console:
+        console.print(f"\n[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]")
+        console.print(f"  [bold cyan]{title}[/bold cyan]")
+        console.print(f"[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]\n")
+    else:
+        p("\n═══════════════════════════════════════════════════════════")
+        p(f"  {title}")
+        p("═══════════════════════════════════════════════════════════\n")
+
+
 def print_mode_banner(dry_run_mode: bool) -> None:
     """Print modern mode indicator banner."""
     from linuxmole.constants import RICH, console
@@ -243,19 +260,25 @@ def simple_installer() -> None:
 
 def simple_uninstall() -> None:
     """Interactive application uninstaller wizard."""
-    p("=== Uninstall Applications ===")
-    p("")
+    from linuxmole.constants import RICH, console
 
-    # Submenu
-    p("Options:")
-    p("  1) Uninstall a specific package")
-    p("  2) List orphaned packages")
-    p("  3) Run autoremove")
-    p("  4) Fix broken packages")
-    p("  0) Back")
-    p("")
+    print_submenu_header("UNINSTALL APPLICATIONS")
 
-    choice = input("Select option: ").strip()
+    # Submenu options
+    if RICH and console:
+        console.print("  [cyan]1[/cyan]   Uninstall a specific package")
+        console.print("  [cyan]2[/cyan]   List orphaned packages")
+        console.print("  [cyan]3[/cyan]   Run autoremove")
+        console.print("  [cyan]4[/cyan]   Fix broken packages")
+        console.print("\n  [white]0[/white]   Back to main menu\n")
+    else:
+        p("  1   Uninstall a specific package")
+        p("  2   List orphaned packages")
+        p("  3   Run autoremove")
+        p("  4   Fix broken packages")
+        p("\n  0   Back to main menu\n")
+
+    choice = input("  → ").strip()
 
     if choice == "0":
         return
@@ -384,21 +407,28 @@ def simple_optimize() -> None:
 
 def simple_whitelist() -> None:
     """Interactive whitelist management."""
+    from linuxmole.constants import RICH, console
+
     while True:
-        clear_screen()
-        print_header()
+        print_submenu_header("WHITELIST MANAGEMENT")
 
-        p("=== Whitelist Management ===")
-        p("")
-        p("  1) Show current whitelist")
-        p("  2) Add new pattern")
-        p("  3) Remove pattern")
-        p("  4) Test if path is protected")
-        p("  5) Edit in $EDITOR")
-        p("  0) Back")
-        p("")
+        # Submenu options
+        if RICH and console:
+            console.print("  [cyan]1[/cyan]   Show current whitelist")
+            console.print("  [cyan]2[/cyan]   Add new pattern")
+            console.print("  [cyan]3[/cyan]   Remove pattern")
+            console.print("  [cyan]4[/cyan]   Test if path is protected")
+            console.print("  [cyan]5[/cyan]   Edit in text editor")
+            console.print("\n  [white]0[/white]   Back to main menu\n")
+        else:
+            p("  1   Show current whitelist")
+            p("  2   Add new pattern")
+            p("  3   Remove pattern")
+            p("  4   Test if path is protected")
+            p("  5   Edit in text editor")
+            p("\n  0   Back to main menu\n")
 
-        choice = input("Select option: ").strip()
+        choice = input("  → ").strip()
 
         if choice == "0":
             break
@@ -435,18 +465,23 @@ def simple_whitelist() -> None:
 
 def simple_config() -> None:
     """Interactive configuration management."""
-    clear_screen()
-    print_header()
+    from linuxmole.constants import RICH, console
 
-    p("=== Configuration Management ===")
-    p("")
-    p("  1) Show current configuration")
-    p("  2) Edit in $EDITOR")
-    p("  3) Reset to defaults")
-    p("  0) Back")
-    p("")
+    print_submenu_header("CONFIGURATION MANAGEMENT")
 
-    choice = input("Select option: ").strip()
+    # Submenu options
+    if RICH and console:
+        console.print("  [cyan]1[/cyan]   Show current configuration")
+        console.print("  [cyan]2[/cyan]   Edit in text editor")
+        console.print("  [cyan]3[/cyan]   Reset to defaults")
+        console.print("\n  [white]0[/white]   Back to main menu\n")
+    else:
+        p("  1   Show current configuration")
+        p("  2   Edit in text editor")
+        p("  3   Reset to defaults")
+        p("\n  0   Back to main menu\n")
+
+    choice = input("  → ").strip()
 
     if choice == "0":
         return
