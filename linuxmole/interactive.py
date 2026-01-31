@@ -266,6 +266,13 @@ def simple_uninstall() -> None:
         purge = prompt_bool("Remove configs and data (--purge)", True)
         dry_run = prompt_bool("Dry-run", True)
 
+        # Root check
+        if not is_root() and not dry_run:
+            if not prompt_bool("Root permissions required. Execute with sudo?", True):
+                pause()
+                return
+            maybe_reexec_with_sudo("Executing with root permissions...")
+
         args = argparse.Namespace(
             package=package,
             purge=purge,
@@ -289,6 +296,13 @@ def simple_uninstall() -> None:
 
     elif choice == "3":
         if prompt_bool("Run apt autoremove?", True):
+            # Root check
+            if not is_root():
+                if not prompt_bool("Root permissions required. Execute with sudo?", True):
+                    pause()
+                    return
+                maybe_reexec_with_sudo("Executing with root permissions...")
+
             args = argparse.Namespace(
                 package=None,
                 purge=False,
@@ -301,6 +315,13 @@ def simple_uninstall() -> None:
 
     elif choice == "4":
         if prompt_bool("Attempt to fix broken packages?", True):
+            # Root check
+            if not is_root():
+                if not prompt_bool("Root permissions required. Execute with sudo?", True):
+                    pause()
+                    return
+                maybe_reexec_with_sudo("Executing with root permissions...")
+
             args = argparse.Namespace(
                 package=None,
                 purge=False,
