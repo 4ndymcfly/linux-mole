@@ -49,11 +49,12 @@ def cmd_config(args: argparse.Namespace) -> None:
             p("Config file doesn't exist yet. Creating with defaults...")
             save_config(default_config())
 
-        editor = os.environ.get("EDITOR")
+        from linuxmole.helpers import get_editor
+        editor = get_editor()
         if not editor:
-            line_warn("$EDITOR environment variable not set")
-            p("\nSet your editor with:")
-            p("  export EDITOR=nano    # or vim, code, etc.")
+            line_warn("No text editor found")
+            p("\nPlease install a text editor:")
+            p("  sudo apt install nano")
             return
 
         logger.info(f"Opening config in editor: {editor}")

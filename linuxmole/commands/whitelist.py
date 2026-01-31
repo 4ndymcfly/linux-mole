@@ -106,11 +106,12 @@ def cmd_whitelist(args: argparse.Namespace) -> None:
 
     # Handle --edit flag
     if args.edit:
-        editor = os.environ.get("EDITOR")
+        from linuxmole.helpers import get_editor
+        editor = get_editor()
         if not editor:
-            line_warn("$EDITOR environment variable not set")
-            p("\nSet your editor with:")
-            p("  export EDITOR=nano    # or vim, code, etc.")
+            line_warn("No text editor found")
+            p("\nPlease install a text editor:")
+            p("  sudo apt install nano")
             return
 
         logger.info(f"Opening whitelist in editor: {editor}")

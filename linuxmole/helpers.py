@@ -22,6 +22,48 @@ def which(cmd: str) -> Optional[str]:
     return _which(cmd)
 
 
+def get_editor() -> Optional[str]:
+    """
+    Get an available text editor.
+
+    Returns the editor command, or None if none available.
+    Checks $EDITOR first, then searches for common editors.
+    """
+    # Check $EDITOR first
+    editor = os.environ.get("EDITOR")
+    if editor and which(editor):
+        return editor
+
+    # Common editors in order of preference
+    editors = ["nano", "vim", "vi", "emacs", "joe", "micro"]
+
+    available = []
+    for ed in editors:
+        if which(ed):
+            available.append(ed)
+
+    if not available:
+        return None
+
+    # If only one available, use it
+    if len(available) == 1:
+        return available[0]
+
+    # Multiple available - let user choose
+    p("\nAvailable text editors:")
+    for i, ed in enumerate(available, 1):
+        p(f"  {i}) {ed}")
+    p("")
+
+    while True:
+        choice = input(f"Select editor [1-{len(available)}]: ").strip()
+        if choice.isdigit():
+            idx = int(choice) - 1
+            if 0 <= idx < len(available):
+                return available[idx]
+        p("Invalid choice, try again.")
+
+
 def run(cmd: List[str], dry_run: bool, check: bool = False) -> subprocess.CompletedProcess:
     """
     Execute a command with logging and dry-run support.
