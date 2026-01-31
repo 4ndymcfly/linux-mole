@@ -572,19 +572,21 @@ def interactive_simple() -> None:
 
     # Mode options
     if RICH and console:
-        console.print("  [bold green]1[/bold green]  Normal Mode     [dim]Execute commands normally[/dim]")
-        console.print("  [bold yellow]2[/bold yellow]  Dry-Run Mode    [dim]Preview commands without executing[/dim]")
-        console.print("  [bold red]0[/bold red]  Exit\n")
+        console.print("  [bold green]1[/bold green]  Normal Mode     [dim]Execute without root permissions[/dim]")
+        console.print("  [bold red]2[/bold red]  Root Mode       [dim]Execute with root permissions[/dim]")
+        console.print("  [bold yellow]3[/bold yellow]  Dry-Run Mode    [dim]Preview commands without executing[/dim]")
+        console.print("  [bold white]0[/bold white]  Exit\n")
     else:
-        p("  1  Normal Mode     (Execute commands normally)")
-        p("  2  Dry-Run Mode    (Preview commands without executing)")
+        p("  1  Normal Mode     (Execute without root permissions)")
+        p("  2  Root Mode       (Execute with root permissions)")
+        p("  3  Dry-Run Mode    (Preview commands without executing)")
         p("  0  Exit\n")
 
     mode_choice = input("  → ").strip()
 
     if mode_choice == "0":
         return
-    elif mode_choice not in ("1", "2"):
+    elif mode_choice not in ("1", "2", "3"):
         if RICH and console:
             console.print("\n  [red]✗[/red] Invalid option", style="bold")
         else:
@@ -592,8 +594,16 @@ def interactive_simple() -> None:
         pause()
         return
 
-    # Mode selected: 1=Normal, 2=Dry-Run
-    dry_run_mode = (mode_choice == "2")
+    # Mode selected: 1=Normal, 2=Root, 3=Dry-Run
+    dry_run_mode = (mode_choice == "3")
+
+    # If Root Mode selected and not already root, request sudo once
+    if mode_choice == "2" and not is_root():
+        if RICH and console:
+            console.print("\n  [yellow]→[/yellow] Requesting root permissions...\n")
+        else:
+            p("\n  → Requesting root permissions...\n")
+        maybe_reexec_with_sudo("Root Mode requires elevated permissions.")
 
     # ═══════════════════════════════════════════════════════════
     # STEP 2: Main Menu Loop (with selected mode)
@@ -690,11 +700,6 @@ def interactive_simple() -> None:
         elif choice == "1":  # Status (all)
             clear_screen()
             print_header()
-            if not is_root() and which("docker") and not dry_run_mode:
-                if not prompt_bool("Root permissions recommended for complete Docker information. Execute with sudo?", True):
-                    pause()
-                    continue
-                maybe_reexec_with_sudo("Executing with root permissions...")
             args = argparse.Namespace(paths=False)
             cmd_status_all(args)
             pause()
@@ -709,11 +714,6 @@ def interactive_simple() -> None:
         elif choice == "3":  # Status docker
             clear_screen()
             print_header()
-            if not is_root() and which("docker") and not dry_run_mode:
-                if not prompt_bool("Root permissions recommended for complete Docker information. Execute with sudo?", True):
-                    pause()
-                    continue
-                maybe_reexec_with_sudo("Executing with root permissions...")
             args = argparse.Namespace(top_logs=20)
             cmd_docker_status(args)
             pause()
@@ -728,22 +728,12 @@ def interactive_simple() -> None:
         elif choice == "5":  # Clean docker
             clear_screen()
             print_header()
-            if not is_root() and which("docker") and not dry_run_mode:
-                if not prompt_bool("Root permissions recommended for Docker operations. Execute with sudo?", True):
-                    pause()
-                    continue
-                maybe_reexec_with_sudo("Executing with root permissions...")
             simple_docker_clean(dry_run_mode)
             pause()
 
         elif choice == "6":  # Clean system
             clear_screen()
             print_header()
-            if not is_root() and not dry_run_mode:
-                if not prompt_bool("Root permissions are required. Execute with sudo?", True):
-                    pause()
-                    continue
-                maybe_reexec_with_sudo("Executing with root permissions...")
             simple_clean_system(dry_run_mode)
             pause()
 
