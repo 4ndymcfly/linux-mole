@@ -187,9 +187,16 @@ pip install linuxmole
 
 ---
 
-### 🗂️ Legacy Script (Deprecated)
+### 🗂️ Alternative: Manual Installation Script
 
-The `install-linuxmole.sh` script is **deprecated** and no longer maintained. Use **pipx** instead.
+The `install-linuxmole.sh` script provides a **manual installation option** for systems without pipx. However, **pipx is still strongly recommended** for better dependency management and easier updates.
+
+**When to use the script:**
+- Systems where pipx is not available or cannot be installed
+- Offline installations or restricted environments
+- Manual control over installation location
+
+**Note:** The script installs to `/opt/linuxmole` and requires root access. Updates must be done manually by re-running the script.
 
 ## Commands
 
