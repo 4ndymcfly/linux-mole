@@ -373,7 +373,8 @@ def simple_optimize() -> None:
         network=network,
         services=services,
         clear_cache=clear_cache,
-        dry_run=dry_run
+        dry_run=dry_run,
+        yes=False
     )
     cmd_optimize(args)
 
