@@ -677,7 +677,7 @@ def interactive_simple() -> None:
             elif choice == "6":  # Clean system
                 clear_screen()
                 print_header()
-                if not is_root():
+                if not is_root() and not dry_run_mode:
                     if not prompt_bool("Root permissions are required. Execute with sudo?", True):
                         pause()
                         continue
