@@ -32,7 +32,7 @@ if TEXTUAL:
         """Widget to display information about selected directory."""
 
         path = reactive("")
-        size = reactive(0)
+        dir_size = reactive(0)
         total_size = reactive(1)
 
         def render(self) -> str:
@@ -40,8 +40,8 @@ if TEXTUAL:
             if not self.path:
                 return "[dim]Select a directory to see details[/dim]"
 
-            percentage = (self.size / self.total_size * 100) if self.total_size > 0 else 0
-            size_str = format_size(self.size)
+            percentage = (self.dir_size / self.total_size * 100) if self.total_size > 0 else 0
+            size_str = format_size(self.dir_size)
 
             return f"""[bold cyan]Path:[/bold cyan] {self.path}
 [bold yellow]Size:[/bold yellow] {size_str}
@@ -124,7 +124,7 @@ if TEXTUAL:
 
             disk_info = self.query_one("#disk_info", DiskUsageInfo)
             disk_info.path = path
-            disk_info.size = size
+            disk_info.dir_size = size
             disk_info.total_size = self.total_size
 
         def on_directory_tree_file_selected(
@@ -139,7 +139,7 @@ if TEXTUAL:
 
             disk_info = self.query_one("#disk_info", DiskUsageInfo)
             disk_info.path = path
-            disk_info.size = size
+            disk_info.dir_size = size
             disk_info.total_size = self.total_size
 
         def action_refresh(self) -> None:
