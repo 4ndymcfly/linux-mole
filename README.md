@@ -88,18 +88,23 @@ lm status docker        Docker status only
 lm clean                Full cleanup (system + docker)
 lm clean system         System cleanup only
 lm clean docker         Docker cleanup only
+lm uninstall            Uninstall apps (APT/Snap/Flatpak)
+lm optimize             Optimize system (DBs, network, services)
 lm analyze              Analyze disk usage
 lm purge                Clean project build artifacts
 lm installer            Find and remove installer files
-lm whitelist            Show whitelist config
-lm uninstall            Remove LinuxMole from this system
+lm whitelist            Manage whitelist (add/remove/test/edit)
+lm config               Manage configuration
+lm self-uninstall       Remove LinuxMole from this system
 lm --version            Show version
 lm update               Update LinuxMole (pipx)
 
 
-OPTIONS (clean only)
---dry-run               Preview only, no actions executed
---yes                   Assume 'yes' for confirmations
+OPTIONS
+--dry-run               Preview only (clean, uninstall, optimize)
+--yes                   Assume 'yes' for confirmations (clean, uninstall, optimize)
+-v, --verbose           Enable verbose logging
+--log-file PATH         Write logs to file
 -h, --help              Show help
 
 
@@ -113,10 +118,17 @@ EXAMPLES
   lm clean system --journal --tmpfiles --apt --dry-run
   lm clean system --logs --logs-days 14 --dry-run
   lm clean system --kernels --kernels-keep 2 --dry-run
+  lm uninstall firefox --purge --dry-run
+  lm uninstall --list-orphans
+  lm optimize --all --dry-run
+  lm optimize --database --network
   lm analyze --path /var --top 15
+  lm analyze --tui
   lm purge
   lm installer
-  lm whitelist
+  lm whitelist --add "/home/*/projects/*"
+  lm whitelist --edit
+  lm config --edit
   lm --version
   lm update
 ```
@@ -187,11 +199,14 @@ The `install-linuxmole.sh` script is **deprecated** and no longer maintained. Us
 - `lm clean` Full cleanup (system + docker)
 - `lm clean system` System cleanup only
 - `lm clean docker` Docker cleanup only
+- `lm uninstall` Uninstall apps (APT/Snap/Flatpak)
+- `lm optimize` Optimize system (DBs, network, services)
 - `lm analyze` Analyze disk usage
 - `lm purge` Clean project build artifacts
 - `lm installer` Find and remove installer files
-- `lm whitelist` Show whitelist config
-- `lm uninstall` Remove LinuxMole from this system
+- `lm whitelist` Manage whitelist (add/remove/test/edit)
+- `lm config` Manage configuration
+- `lm self-uninstall` Remove LinuxMole from this system
 - `lm --version` Show version
 - `lm update` Update LinuxMole (pipx)
 
@@ -210,8 +225,28 @@ lm clean system --kernels --kernels-keep 2 --dry-run
 
 ```bash
 lm analyze --path /var --top 15
+lm analyze --tui
 lm purge
 lm installer
+```
+
+## Uninstall / Optimize / Config
+
+```bash
+# Uninstall apps with all configs
+lm uninstall firefox --purge --dry-run
+lm uninstall docker-compose --yes
+lm uninstall --list-orphans
+lm uninstall --autoremove
+
+# Optimize system
+lm optimize --all --dry-run
+lm optimize --database --network
+lm optimize --services
+
+# Manage configuration
+lm config --edit
+lm config --reset
 ```
 
 ## Whitelist / Config
