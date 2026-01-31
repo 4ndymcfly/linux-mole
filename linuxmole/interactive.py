@@ -552,7 +552,7 @@ def interactive_simple() -> None:
     # ═══════════════════════════════════════════════════════════
     clear_screen()
     print_header()
-    print_banner()
+    print_banner(banner_style="cyan", url_style="cyan")
 
     if RICH and console:
         console.print("\n[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]")
@@ -611,7 +611,7 @@ def interactive_simple() -> None:
     while True:
         clear_screen()
         print_header()
-        print_banner()
+        print_banner(banner_style="cyan", url_style="cyan")
 
         if RICH and console:
             console.print("\n[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]")
