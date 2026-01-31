@@ -58,30 +58,36 @@ def prompt_int(msg: str) -> Optional[int]:
 # ══════════════════════════════════════════════════════════════
 
 def print_category_header(icon: str, title: str) -> None:
-    """Print a category header with icon."""
-    p("")
-    p(f"{icon} {title}")
+    """Print a modern category header with icon and styling."""
+    from linuxmole.constants import RICH, console
+
+    if RICH and console:
+        console.print(f"\n  {icon} [bold cyan]{title}[/bold cyan]")
+    else:
+        p(f"\n  {icon} {title}")
 
 
-def print_separator(char: str = "═", length: int = 65) -> None:
-    """Print a visual separator."""
-    p(char * length)
-
-
-def print_status_indicators(dry_run_mode: bool) -> None:
-    """Print current mode indicators."""
-    indicators = []
+def print_mode_banner(dry_run_mode: bool) -> None:
+    """Print modern mode indicator banner."""
+    from linuxmole.constants import RICH, console
 
     if is_root():
-        indicators.append("⚠️  ROOT MODE")
+        mode_text = "ROOT MODE"
+        mode_icon = "⚠️"
+        mode_color = "red"
     elif dry_run_mode:
-        indicators.append("🔍 DRY-RUN MODE")
+        mode_text = "DRY-RUN MODE"
+        mode_icon = "🔍"
+        mode_color = "yellow"
     else:
-        indicators.append("✓ NORMAL MODE")
+        mode_text = "NORMAL MODE"
+        mode_icon = "✓"
+        mode_color = "green"
 
-    if indicators:
-        p("  ".join(indicators))
-        p("")
+    if RICH and console:
+        console.print(f"\n  [{mode_color}]■[/{mode_color}] [bold {mode_color}]{mode_text}[/bold {mode_color}]\n")
+    else:
+        p(f"\n  {mode_icon} {mode_text}\n")
 
 
 def simple_docker_clean(dry_run_mode: bool = False) -> None:
@@ -548,62 +554,67 @@ def interactive_simple() -> None:
     from linuxmole.constants import RICH, console
 
     # ═══════════════════════════════════════════════════════════
-    # STEP 1: Initial Mode Selection (only once at startup)
+    # STEP 1: Determine execution mode
     # ═══════════════════════════════════════════════════════════
-    clear_screen()
-    print_header()
-    print_banner(banner_style="cyan", url_style="cyan")
 
-    if RICH and console:
-        console.print("\n[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]")
-        console.print("  [bold cyan]SELECT EXECUTION MODE[/bold cyan]")
-        console.print("[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]\n")
-    else:
-        p("\n═══════════════════════════════════════════════════════════")
-        p("  SELECT EXECUTION MODE")
-        p("═══════════════════════════════════════════════════════════\n")
-
-    # Show root warning if applicable
+    # If already running as root, skip mode selection and go straight to main menu
     if is_root():
-        if RICH and console:
-            console.print("  [bold red]⚠️  Running as ROOT[/bold red] - All operations will execute with elevated permissions\n")
-        else:
-            p("  ⚠️  Running as ROOT - All operations will execute with elevated permissions\n")
-
-    # Mode options
-    if RICH and console:
-        console.print("  [bold green]1[/bold green]  Normal Mode     [dim]Execute without root permissions[/dim]")
-        console.print("  [bold red]2[/bold red]  Root Mode       [dim]Execute with root permissions[/dim]")
-        console.print("  [bold yellow]3[/bold yellow]  Dry-Run Mode    [dim]Preview commands without executing[/dim]")
-        console.print("  [bold white]0[/bold white]  Exit\n")
+        dry_run_mode = False  # Root mode = not dry-run
+        # Go directly to main menu (skip mode selection)
     else:
-        p("  1  Normal Mode     (Execute without root permissions)")
-        p("  2  Root Mode       (Execute with root permissions)")
-        p("  3  Dry-Run Mode    (Preview commands without executing)")
-        p("  0  Exit\n")
+        # Not root - show mode selection
+        clear_screen()
+        print_header()
+        print_banner(banner_style="cyan", url_style="cyan")
 
-    mode_choice = input("  → ").strip()
-
-    if mode_choice == "0":
-        return
-    elif mode_choice not in ("1", "2", "3"):
         if RICH and console:
-            console.print("\n  [red]✗[/red] Invalid option", style="bold")
+            console.print("\n[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]")
+            console.print("  [bold cyan]SELECT EXECUTION MODE[/bold cyan]")
+            console.print("[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]\n")
         else:
-            p("\n  ✗ Invalid option")
-        pause()
-        return
+            p("\n═══════════════════════════════════════════════════════════")
+            p("  SELECT EXECUTION MODE")
+            p("═══════════════════════════════════════════════════════════\n")
 
-    # Mode selected: 1=Normal, 2=Root, 3=Dry-Run
-    dry_run_mode = (mode_choice == "3")
-
-    # If Root Mode selected and not already root, request sudo once
-    if mode_choice == "2" and not is_root():
+        # Mode options
         if RICH and console:
-            console.print("\n  [yellow]→[/yellow] Requesting root permissions...\n")
+            console.print("  [bold green]1[/bold green]  Normal Mode     [dim]Execute without root permissions[/dim]")
+            console.print("  [bold red]2[/bold red]  Root Mode       [dim]Execute with root permissions[/dim]")
+            console.print("  [bold yellow]3[/bold yellow]  Dry-Run Mode    [dim]Preview commands without executing[/dim]")
+            console.print("\n  [bold white]0[/bold white]  Exit\n")
         else:
-            p("\n  → Requesting root permissions...\n")
-        maybe_reexec_with_sudo("Root Mode requires elevated permissions.")
+            p("  1  Normal Mode     (Execute without root permissions)")
+            p("  2  Root Mode       (Execute with root permissions)")
+            p("  3  Dry-Run Mode    (Preview commands without executing)")
+            p("\n  0  Exit\n")
+
+        mode_choice = input("  → ").strip()
+
+        if mode_choice == "0":
+            return
+        elif mode_choice not in ("1", "2", "3"):
+            if RICH and console:
+                console.print("\n  [red]✗[/red] Invalid option\n", style="bold")
+            else:
+                p("\n  ✗ Invalid option\n")
+            pause()
+            return
+
+        # Mode selected: 1=Normal, 2=Root, 3=Dry-Run
+        dry_run_mode = (mode_choice == "3")
+
+        # If Root Mode selected, request sudo and re-execute
+        if mode_choice == "2":
+            if RICH and console:
+                console.print("\n  [yellow]→[/yellow] Requesting root permissions...\n")
+            else:
+                p("\n  → Requesting root permissions...\n")
+
+            # This will re-execute the program with sudo
+            # When it comes back, is_root() will be True and we skip this section
+            maybe_reexec_with_sudo("Root Mode requires elevated permissions.")
+            # If we reach here, user declined sudo or it failed
+            return
 
     # ═══════════════════════════════════════════════════════════
     # STEP 2: Main Menu Loop (with selected mode)
@@ -621,9 +632,9 @@ def interactive_simple() -> None:
         print_mode_banner(dry_run_mode)
 
         if RICH and console:
-            console.print("[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]\n")
+            console.print("[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]")
         else:
-            p("═══════════════════════════════════════════════════════════\n")
+            p("═══════════════════════════════════════════════════════════")
 
         # ── MONITORING & ANALYSIS ──
         print_category_header("🔵", "MONITORING & ANALYSIS")
@@ -693,7 +704,7 @@ def interactive_simple() -> None:
 
         if choice == "0":
             if RICH and console:
-                console.print("\n  [dim]Exiting LinuxMole...[/dim]")
+                console.print("\n  [dim]Exiting LinuxMole...[/dim]\n")
             return
 
         # ── MONITORING & ANALYSIS ──
@@ -826,7 +837,7 @@ def interactive_simple() -> None:
 
         else:
             if RICH and console:
-                console.print("\n  [red]✗[/red] Invalid option", style="bold")
+                console.print("\n  [red]✗[/red] Invalid option\n", style="bold")
             else:
-                p("\n  ✗ Invalid option")
+                p("\n  ✗ Invalid option\n")
             pause()
