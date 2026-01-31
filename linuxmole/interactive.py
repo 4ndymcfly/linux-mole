@@ -42,24 +42,25 @@ def prompt_int(msg: str) -> Optional[int]:
         return None
 
 
-def simple_docker_clean() -> None:
+def simple_docker_clean(dry_run_mode: bool = False) -> None:
     """Interactive Docker cleanup wizard."""
-    containers = prompt_bool("Remove stopped containers", False)
-    networks = prompt_bool("Remove dangling networks", False)
-    volumes = prompt_bool("Remove dangling volumes", False)
-    builder = prompt_bool("Clean builder cache", False)
-    builder_all = prompt_bool("Builder prune --all", False) if builder else False
-    images = prompt_choice("Image cleanup", ["off", "dangling", "unused", "all"], "off")
-    system_prune = prompt_bool("Run docker system prune", False)
-    system_prune_all = prompt_bool("System prune -a", False) if system_prune else False
-    system_prune_volumes = prompt_bool("System prune --volumes", False) if system_prune else False
+    # Changed defaults to True (Y/n instead of y/N)
+    containers = prompt_bool("Remove stopped containers", True)
+    networks = prompt_bool("Remove dangling networks", True)
+    volumes = prompt_bool("Remove dangling volumes", True)
+    builder = prompt_bool("Clean builder cache", True)
+    builder_all = prompt_bool("Builder prune --all", True) if builder else False
+    images = prompt_choice("Image cleanup", ["off", "dangling", "unused", "all"], "dangling")
+    system_prune = prompt_bool("Run docker system prune", True)
+    system_prune_all = prompt_bool("System prune -a", True) if system_prune else False
+    system_prune_volumes = prompt_bool("System prune --volumes", True) if system_prune else False
     truncate_logs_mb = prompt_int("Truncate json-file logs >= N MB")
-    dry_run = prompt_bool("Dry-run", True)
-    assume_yes = prompt_bool("Assume confirmations (--yes)", False)
 
-    if (truncate_logs_mb is not None and not is_root() and
-        docker_logs_dir_exists() and not can_read_docker_logs()):
-        maybe_reexec_with_sudo("Permissions are required to truncate Docker logs.")
+    # Don't ask for dry-run if already in dry-run mode
+    dry_run = dry_run_mode if dry_run_mode else prompt_bool("Dry-run", True)
+    assume_yes = prompt_bool("Assume confirmations (--yes)", True)
+
+    # Root check for log truncation is now done before calling this function
 
     args = argparse.Namespace(
         containers=containers,
@@ -78,9 +79,10 @@ def simple_docker_clean() -> None:
     cmd_docker_clean(args)
 
 
-def simple_clean_system() -> None:
+def simple_clean_system(dry_run_mode: bool = False) -> None:
     """Interactive system cleanup wizard."""
-    journal = prompt_bool("Clean journald", False)
+    # Changed defaults to True (Y/n instead of y/N)
+    journal = prompt_bool("Clean journald", True)
     journal_time = "14d"
     journal_size = "500M"
     if journal:
@@ -88,13 +90,14 @@ def simple_clean_system() -> None:
         js = input("Size cap (e.g. 200M, 1G) [500M]: ").strip()
         journal_time = jt or journal_time
         journal_size = js or journal_size
-    tmpfiles = prompt_bool("systemd-tmpfiles --clean", False)
-    apt = prompt_bool("apt autoremove/autoclean/clean", False)
-    dry_run = prompt_bool("Dry-run", True)
-    assume_yes = prompt_bool("Assume confirmations (--yes)", False)
+    tmpfiles = prompt_bool("systemd-tmpfiles --clean", True)
+    apt = prompt_bool("apt autoremove/autoclean/clean", True)
 
-    if (journal or tmpfiles or apt) and not is_root():
-        maybe_reexec_with_sudo("Root permissions are required for clean system.")
+    # Don't ask for dry-run if already in dry-run mode
+    dry_run = dry_run_mode if dry_run_mode else prompt_bool("Dry-run", True)
+    assume_yes = prompt_bool("Assume confirmations (--yes)", True)
+
+    # Root check is now done before calling this function
 
     args = argparse.Namespace(
         journal=journal,
@@ -121,42 +124,77 @@ def simple_clean_system() -> None:
 
 def interactive_simple() -> None:
     """Run the simple interactive menu."""
+    # First, select mode
     while True:
         clear_screen()
         print_header()
         print_banner()
-        p("MAIN MENU")
-        p("  1) status (all)")
-        p("  2) status docker")
-        p("  3) clean docker")
-        p("  4) clean system")
-        p("  0) exit")
-        choice = input("Select an option: ").strip()
-        if choice == "1":
-            clear_screen()
-            print_header()
-            args = argparse.Namespace(paths=False)
-            cmd_status_all(args)
-            pause()
-        elif choice == "2":
-            clear_screen()
-            print_header()
-            if not is_root() and docker_logs_dir_exists() and not can_read_docker_logs():
-                maybe_reexec_with_sudo("Permissions are required to read Docker logs.")
-            args = argparse.Namespace(top_logs=20)
-            cmd_docker_status(args)
-            pause()
-        elif choice == "3":
-            clear_screen()
-            print_header()
-            simple_docker_clean()
-            pause()
-        elif choice == "4":
-            clear_screen()
-            print_header()
-            simple_clean_system()
-            pause()
-        elif choice == "0":
+        p("SELECT MODE")
+        p("  1) Normal Mode")
+        p("  2) Dry-Run Mode")
+        p("  0) Exit")
+        mode_choice = input("Select an option: ").strip()
+
+        if mode_choice == "0":
             break
-        else:
+        elif mode_choice not in ("1", "2"):
             p("Invalid option.")
+            pause()
+            continue
+
+        # Mode selected: 1=Normal, 2=Dry-Run
+        dry_run_mode = (mode_choice == "2")
+        mode_suffix = " (Dry-Run Mode)" if dry_run_mode else ""
+
+        # Main menu loop
+        while True:
+            clear_screen()
+            print_header()
+            print_banner()
+            p("MAIN MENU" + mode_suffix)
+            p(f"  1) Status (all){mode_suffix}")
+            p(f"  2) Status docker{mode_suffix}")
+            p(f"  3) Clean docker{mode_suffix}")
+            p(f"  4) Clean system{mode_suffix}")
+            p("  0) Back to mode selection")
+            choice = input("Select an option: ").strip()
+
+            if choice == "0":
+                break
+            elif choice == "1":
+                clear_screen()
+                print_header()
+                args = argparse.Namespace(paths=False)
+                cmd_status_all(args)
+                pause()
+            elif choice == "2":
+                clear_screen()
+                print_header()
+                # Ask for root permissions first if needed
+                if not is_root() and docker_logs_dir_exists() and not can_read_docker_logs():
+                    if not prompt_bool("Root permissions are required. Execute with sudo?", True):
+                        pause()
+                        continue
+                    maybe_reexec_with_sudo("Executing with root permissions...")
+                args = argparse.Namespace(top_logs=20)
+                cmd_docker_status(args)
+                pause()
+            elif choice == "3":
+                clear_screen()
+                print_header()
+                simple_docker_clean(dry_run_mode)
+                pause()
+            elif choice == "4":
+                clear_screen()
+                print_header()
+                # Ask for root permissions first
+                if not is_root():
+                    if not prompt_bool("Root permissions are required. Execute with sudo?", True):
+                        pause()
+                        continue
+                    maybe_reexec_with_sudo("Executing with root permissions...")
+                simple_clean_system(dry_run_mode)
+                pause()
+            else:
+                p("Invalid option.")
+                pause()

@@ -33,6 +33,7 @@ from linuxmole.config import load_whitelist, is_whitelisted, load_config
 from linuxmole.plans import Action, show_plan, exec_actions
 from linuxmole.system.paths import du_bytes, find_log_candidates
 from linuxmole.system.apt import kernel_cleanup_candidates, kernel_pkg_size_bytes
+from linuxmole.system.metrics import disk_usage_bytes
 from linuxmole.docker.inspect import (
     docker_available,
     docker_cmd,
@@ -73,27 +74,29 @@ from linuxmole.commands._helpers import (
 
 def apply_default_clean_flags(args: argparse.Namespace, mode: str) -> None:
     """Apply default clean flags when no specific flags are provided."""
+    # Check docker flags only if they exist (docker mode)
     docker_none = not any([
-        args.containers,
-        args.networks,
-        args.volumes,
-        args.builder,
-        args.system_prune,
-        args.truncate_logs_mb
-    ]) and args.images == "off"
+        getattr(args, 'containers', False),
+        getattr(args, 'networks', False),
+        getattr(args, 'volumes', False),
+        getattr(args, 'builder', False),
+        getattr(args, 'system_prune', False),
+        getattr(args, 'truncate_logs_mb', None)
+    ]) and getattr(args, 'images', 'off') == "off"
 
+    # Check system flags only if they exist (system mode)
     system_none = not any([
-        args.journal,
-        args.tmpfiles,
-        args.apt,
-        args.logs,
-        args.pip_cache,
-        args.npm_cache,
-        args.cargo_cache,
-        args.go_cache,
-        args.snap,
-        args.flatpak,
-        args.logrotate
+        getattr(args, 'journal', False),
+        getattr(args, 'tmpfiles', False),
+        getattr(args, 'apt', False),
+        getattr(args, 'logs', False),
+        getattr(args, 'pip_cache', False),
+        getattr(args, 'npm_cache', False),
+        getattr(args, 'cargo_cache', False),
+        getattr(args, 'go_cache', False),
+        getattr(args, 'snap', False),
+        getattr(args, 'flatpak', False),
+        getattr(args, 'logrotate', False)
     ])
 
     if mode in ("all", "docker") and docker_none:
@@ -453,6 +456,13 @@ def cmd_docker_clean(args: argparse.Namespace) -> None:
         p("Cancelled.")
         return
 
+    # Capture free space before cleanup
+    space_before = None
+    disk_b = disk_usage_bytes("/")
+    if disk_b:
+        _, _, avail = disk_b
+        space_before = avail
+
     if actions:
         exec_actions(actions, dry_run=args.dry_run)
 
@@ -471,7 +481,7 @@ def cmd_docker_clean(args: argparse.Namespace) -> None:
             p(f"[log] truncate {cid[:12]} {human_bytes(sz)} {lp}")
             truncate_file(lp, dry_run=args.dry_run)
 
-    print_final_summary(False, total_bytes, unknown, total_items, categories, log_path)
+    print_final_summary(False, total_bytes, unknown, total_items, categories, log_path, space_before)
 
 
 def cmd_clean_system(args: argparse.Namespace) -> None:
@@ -713,6 +723,13 @@ def cmd_clean_system(args: argparse.Namespace) -> None:
         p("Cancelled.")
         return
 
+    # Capture free space before cleanup
+    space_before = None
+    disk_b = disk_usage_bytes("/")
+    if disk_b:
+        _, _, avail = disk_b
+        space_before = avail
+
     patterns = load_whitelist()
     if args.logs:
         logs = find_log_candidates(args.logs_days)
@@ -759,7 +776,7 @@ def cmd_clean_system(args: argparse.Namespace) -> None:
         run(["flatpak", "uninstall", "-y", "--unused"], dry_run=args.dry_run, check=False)
 
     exec_actions(actions, dry_run=args.dry_run)
-    print_final_summary(False, total_bytes, unknown, total_items, categories, log_path)
+    print_final_summary(False, total_bytes, unknown, total_items, categories, log_path, space_before)
 
 
 def cmd_clean_all(args: argparse.Namespace) -> None:

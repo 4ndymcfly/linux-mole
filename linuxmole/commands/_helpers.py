@@ -106,6 +106,7 @@ def print_final_summary(
     items: int,
     categories: int,
     log_path: Optional[Path],
+    space_before: Optional[int] = None,
 ) -> None:
     """Print final summary after cleanup operation."""
     p("\n" + "=" * 70)
@@ -113,15 +114,35 @@ def print_final_summary(
         p("Dry run complete - no changes made")
     else:
         p("Operation completed")
-    potential = format_size(total_bytes, unknown)
+
+    # Calculate real space freed if we have before/after measurements
+    disk_b = disk_usage_bytes("/")
+    real_freed = None
+    if not dry_run and space_before is not None and disk_b:
+        _, _, avail_after = disk_b
+        real_freed = avail_after - space_before
+
+    # Show estimated or real space freed
+    if dry_run:
+        label = "Estimated space to free"
+        value = format_size(total_bytes, unknown)
+    else:
+        if real_freed is not None and real_freed > 0:
+            label = "Space freed"
+            value = format_size(real_freed, False)
+        else:
+            label = "Estimated space freed"
+            value = format_size(total_bytes, unknown)
+
     if RICH and console is not None:
-        line = Text("Potential space: ")
-        line.append(potential, style="green")
+        line = Text(f"{label}: ")
+        line.append(value, style="green")
         line.append(f" | Items: {items} | Categories: {categories}")
         console.print(line)
     else:
-        p(f"Potential space: {potential} | Items: {items} | Categories: {categories}")
-    disk_b = disk_usage_bytes("/")
+        p(f"{label}: {value} | Items: {items} | Categories: {categories}")
+
+    # Show current free space
     if disk_b:
         _, _, avail = disk_b
         if RICH and console is not None:
@@ -130,6 +151,7 @@ def print_final_summary(
             console.print(line)
         else:
             p(f"Free space now: {format_size(avail)}")
+
     if log_path:
         p(f"Detailed file list: {log_path}")
     if dry_run:

@@ -143,7 +143,9 @@ def now_str() -> str:
 def clear_screen() -> None:
     """Clear the terminal screen."""
     if sys.stdout.isatty():
-        os.system("clear")
+        # Use ANSI escape sequences instead of 'clear' command
+        # to avoid terminal type warnings with modern terminals like kitty
+        print("\033[H\033[2J", end="", flush=True)
 
 
 def pause(msg: str = "Press Enter to continue...") -> None:
