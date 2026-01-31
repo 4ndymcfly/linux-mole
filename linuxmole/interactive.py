@@ -60,8 +60,6 @@ def simple_docker_clean(dry_run_mode: bool = False) -> None:
     dry_run = dry_run_mode if dry_run_mode else prompt_bool("Dry-run", True)
     assume_yes = prompt_bool("Assume confirmations (--yes)", True)
 
-    # Root check for log truncation is now done before calling this function
-
     args = argparse.Namespace(
         containers=containers,
         networks=networks,
@@ -164,22 +162,36 @@ def interactive_simple() -> None:
             elif choice == "1":
                 clear_screen()
                 print_header()
-                # Status all: no root required (may show warnings for restricted data)
+                # Status all: may need root for Docker logs
+                if not is_root() and docker_logs_dir_exists() and not can_read_docker_logs():
+                    if not prompt_bool("Root permissions recommended to read Docker logs. Execute with sudo?", True):
+                        pause()
+                        continue
+                    maybe_reexec_with_sudo("Executing with root permissions...")
                 args = argparse.Namespace(paths=False)
                 cmd_status_all(args)
                 pause()
             elif choice == "2":
                 clear_screen()
                 print_header()
-                # Status docker: no root required (may show warnings for logs)
+                # Status docker: may need root for logs
+                if not is_root() and docker_logs_dir_exists() and not can_read_docker_logs():
+                    if not prompt_bool("Root permissions recommended to read Docker logs. Execute with sudo?", True):
+                        pause()
+                        continue
+                    maybe_reexec_with_sudo("Executing with root permissions...")
                 args = argparse.Namespace(top_logs=20)
                 cmd_docker_status(args)
                 pause()
             elif choice == "3":
                 clear_screen()
                 print_header()
-                # Clean docker: no root required unless truncating logs
-                # Root check is done inside clean functions if needed
+                # Clean docker: may need root for truncating logs
+                if not is_root() and docker_logs_dir_exists() and not can_read_docker_logs():
+                    if not prompt_bool("Root permissions recommended for log operations. Execute with sudo?", True):
+                        pause()
+                        continue
+                    maybe_reexec_with_sudo("Executing with root permissions...")
                 simple_docker_clean(dry_run_mode)
                 pause()
             elif choice == "4":
