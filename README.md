@@ -19,19 +19,21 @@ LinuxMole is a Mole-inspired CLI for Linux servers with Docker. It focuses on sa
 
 | Aspect | Status |
 |--------|--------|
-| **Version** | 1.0.12 |
-| **Tests** | 120 passing (100%) |
-| **Coverage** | 14.98% |
+| **Version** | 1.1.0 |
+| **Tests** | 142 passing (100%) |
+| **Coverage** | 19.82% |
 | **Architecture** | Modular (28 modules) |
 | **CI/CD** | ✅ GitHub Actions (Python 3.8-3.12) |
-| **Completion** | 9/11 tasks (81.8%) |
+| **Completion** | 10/11 tasks (90.9%) |
 
 ### Implemented Features ✅
 
+- ✅ **Interactive menu with all 14 commands** (new in v1.1.0)
 - ✅ Complete system and Docker status monitoring
 - ✅ Safe cleanup operations (system + Docker)
 - ✅ Disk usage analyzer with interactive TUI
 - ✅ Application uninstaller (apt/snap/flatpak)
+- ✅ System optimization (databases, network, services)
 - ✅ Whitelist management and config file support
 - ✅ Automated testing and CI/CD pipeline
 - ✅ Python 3.8-3.12 compatibility
@@ -49,6 +51,24 @@ LinuxMole is a Mole-inspired CLI for Linux servers with Docker. It focuses on sa
 - Performance optimizations
 
 ## Features
+
+### 🎯 Interactive Menu (New in v1.1.0)
+
+Run `lm` without arguments to access a **complete interactive menu** with all 14 commands organized in 5 categories:
+
+- **📊 Monitoring & Analysis** - Status checks and disk usage analyzer
+- **🧹 Cleanup & Maintenance** - Docker and system cleanup, purge artifacts
+- **⚙️ System Operations** - App uninstaller, system optimization
+- **🔧 Configuration** - Whitelist and config management
+- **🔌 LinuxMole System** - Self-update and uninstall
+
+**Benefits:**
+- ✅ No need to memorize CLI commands
+- ✅ Interactive wizards with smart defaults
+- ✅ Visual indicators (Dry-Run, Root Mode)
+- ✅ Organized categories for easy navigation
+
+### Core Features
 
 - Mole-like console UX with structured sections and previews
 - Safe-by-default cleanup with explicit confirmation
