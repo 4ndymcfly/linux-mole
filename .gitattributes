@@ -1,0 +1,5 @@
+# Exclude development files from release archives
+tests/ export-ignore
+screenshots/ export-ignore
+.github/ export-ignore
+.pytest_cache/ export-ignore
