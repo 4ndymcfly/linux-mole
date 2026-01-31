@@ -176,7 +176,7 @@ def cpu_usage_percent() -> Optional[float]:
     t1 = read_cpu_times()
     if not t1:
         return None
-    time.sleep(0.2)
+    time.sleep(1.0)  # Wait 1 second for accurate measurement
     t2 = read_cpu_times()
     if not t2:
         return None
