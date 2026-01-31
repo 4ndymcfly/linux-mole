@@ -2,12 +2,12 @@
 
 *Safe maintenance for Linux + Docker, inspired by [Mole for macOS](https://github.com/tw93/mole), a wonderful project.*
 
-[![Stars](https://img.shields.io/github/stars/4ndymcfly/linux-mole?style=flat-square)](https://github.com/4ndymcfly/linux-mole/stargazers)
-[![Version](https://img.shields.io/github/v/tag/4ndymcfly/linux-mole?label=version&style=flat-square)](https://github.com/4ndymcfly/linux-mole/releases)
+[![PyPI version](https://img.shields.io/pypi/v/linuxmole?style=flat-square)](https://pypi.org/project/linuxmole/)
+[![Python](https://img.shields.io/pypi/pyversions/linuxmole?style=flat-square)](https://pypi.org/project/linuxmole/)
+[![Downloads](https://img.shields.io/pypi/dm/linuxmole?style=flat-square)](https://pypi.org/project/linuxmole/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square)](https://www.python.org/)
-[![Last commit](https://img.shields.io/github/last-commit/4ndymcfly/linux-mole?style=flat-square)](https://github.com/4ndymcfly/linux-mole/commits)
-[![pipx](https://img.shields.io/badge/pipx-ready-blueviolet?style=flat-square)](https://pypa.github.io/pipx/)
+[![Stars](https://img.shields.io/github/stars/4ndymcfly/linux-mole?style=flat-square)](https://github.com/4ndymcfly/linux-mole/stargazers)
+[![CI](https://img.shields.io/github/actions/workflow/status/4ndymcfly/linux-mole/ci.yml?branch=main&label=tests&style=flat-square)](https://github.com/4ndymcfly/linux-mole/actions/workflows/ci.yml)
 
 ## Overview
 
