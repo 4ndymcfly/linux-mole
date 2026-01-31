@@ -164,14 +164,20 @@ def interactive_simple() -> None:
             elif choice == "1":
                 clear_screen()
                 print_header()
+                # Ask for root permissions first
+                if not is_root():
+                    if not prompt_bool("Root permissions are required. Execute with sudo?", True):
+                        pause()
+                        continue
+                    maybe_reexec_with_sudo("Executing with root permissions...")
                 args = argparse.Namespace(paths=False)
                 cmd_status_all(args)
                 pause()
             elif choice == "2":
                 clear_screen()
                 print_header()
-                # Ask for root permissions first if needed
-                if not is_root() and docker_logs_dir_exists() and not can_read_docker_logs():
+                # Ask for root permissions first
+                if not is_root():
                     if not prompt_bool("Root permissions are required. Execute with sudo?", True):
                         pause()
                         continue
@@ -182,6 +188,12 @@ def interactive_simple() -> None:
             elif choice == "3":
                 clear_screen()
                 print_header()
+                # Ask for root permissions first
+                if not is_root():
+                    if not prompt_bool("Root permissions are required. Execute with sudo?", True):
+                        pause()
+                        continue
+                    maybe_reexec_with_sudo("Executing with root permissions...")
                 simple_docker_clean(dry_run_mode)
                 pause()
             elif choice == "4":
