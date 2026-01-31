@@ -587,31 +587,31 @@ def interactive_simple() -> None:
             print_status_indicators(dry_run_mode)
 
             # ── MONITORING & ANALYSIS ──
-            print_category_header("📊", "MONITORING & ANALYSIS")
+            print_category_header("🔵", "MONITORING & ANALYSIS")
             p("  1) Status (System + Docker)")
             p("  2) Status System only")
             p("  3) Status Docker only")
             p("  4) Analyze Disk Usage (with TUI)")
 
             # ── CLEANUP & MAINTENANCE ──
-            print_category_header("🧹", "CLEANUP & MAINTENANCE")
+            print_category_header("🟢", "CLEANUP & MAINTENANCE")
             p("  5) Clean Docker (interactive)")
             p("  6) Clean System (interactive)")
             p("  7) Purge Build Artifacts")
             p("  8) Remove Installer Files")
 
             # ── SYSTEM OPERATIONS ──
-            print_category_header("🔧", "SYSTEM OPERATIONS")
+            print_category_header("🟡", "SYSTEM OPERATIONS")
             p("  9) Uninstall Applications")
             p(" 10) Optimize System")
 
             # ── CONFIGURATION ──
-            print_category_header("⚙️ ", "CONFIGURATION")
+            print_category_header("🟠", "CONFIGURATION")
             p(" 11) Manage Whitelist")
             p(" 12) Manage Configuration")
 
             # ── LINUXMOLE SYSTEM ──
-            print_category_header("🔄", "LINUXMOLE SYSTEM")
+            print_category_header("🔴", "LINUXMOLE SYSTEM")
             p(" 13) Update LinuxMole")
             p(" 14) Self-Uninstall LinuxMole")
 
