@@ -260,7 +260,7 @@ def simple_installer() -> None:
     cmd_installer(args)
 
 
-def simple_uninstall() -> None:
+def simple_uninstall(dry_run_mode: bool = False) -> None:
     """Interactive application uninstaller wizard."""
     from linuxmole.constants import RICH, console
 
@@ -292,7 +292,12 @@ def simple_uninstall() -> None:
             return
 
         purge = prompt_bool("Remove configs and data (--purge)", True)
-        dry_run = prompt_bool("Dry-run", True)
+
+        # Dry-run: only ask if not already in dry-run mode
+        if dry_run_mode:
+            dry_run = True  # Already in dry-run mode from main menu
+        else:
+            dry_run = prompt_bool("Dry-run", True)
 
         # Root check
         if not is_root() and not dry_run:
@@ -364,7 +369,7 @@ def simple_uninstall() -> None:
         pause()
 
 
-def simple_optimize() -> None:
+def simple_optimize(dry_run_mode: bool = False) -> None:
     """Interactive system optimization wizard."""
     p("=== System Optimization ===")
     p("")
@@ -385,8 +390,11 @@ def simple_optimize() -> None:
         pause()
         return
 
-    # Dry-run
-    dry_run = prompt_bool("Dry-run (preview only)", True)
+    # Dry-run: only ask if not already in dry-run mode
+    if dry_run_mode:
+        dry_run = True  # Already in dry-run mode from main menu
+    else:
+        dry_run = prompt_bool("Dry-run (preview only)", True)
 
     # Root check
     if not is_root() and not dry_run:
@@ -972,13 +980,13 @@ def interactive_simple() -> None:
         elif action == "uninstall":
             clear_screen()
             print_header()
-            simple_uninstall()
+            simple_uninstall(dry_run_mode)
             pause()
 
         elif action == "optimize":
             clear_screen()
             print_header()
-            simple_optimize()
+            simple_optimize(dry_run_mode)
             pause()
 
         # ── CONFIGURATION ──
