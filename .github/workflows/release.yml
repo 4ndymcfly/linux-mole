@@ -86,7 +86,11 @@ jobs:
         CHANGELOG="${CHANGELOG}pipx upgrade linuxmole\n"
         CHANGELOG="${CHANGELOG}\`\`\`\n\n"
         CHANGELOG="${CHANGELOG}**Versión:** ${VERSION}\n"
-        CHANGELOG="${CHANGELOG}**Changelog completo:** https://github.com/${GITHUB_REPOSITORY}/compare/${LAST_TAG}...${TAG}"
+
+        # Add comparison link if there's a previous tag
+        if [ ! -z "$LAST_TAG" ]; then
+          CHANGELOG="${CHANGELOG}**Changelog completo:** https://github.com/${GITHUB_REPOSITORY}/compare/${LAST_TAG}...${TAG}"
+        fi
 
         # Save to output
         echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
