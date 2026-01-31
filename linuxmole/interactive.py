@@ -587,14 +587,18 @@ def simple_self_uninstall() -> None:
 def interactive_simple() -> None:
     """Run the modern interactive menu with improved UX."""
     from linuxmole.constants import RICH, console
+    import os
 
     # ═══════════════════════════════════════════════════════════
     # STEP 1: Determine execution mode
     # ═══════════════════════════════════════════════════════════
 
-    # If already running as root, skip mode selection and go straight to main menu
+    # Check if we're coming from dry-run re-execution
+    dry_run_from_env = os.environ.get("LINUXMOLE_DRY_RUN") == "1"
+
+    # If already running as root, check if it's dry-run mode or normal root mode
     if is_root():
-        dry_run_mode = False  # Root mode = not dry-run
+        dry_run_mode = dry_run_from_env  # True if from dry-run, False if normal root
         # Go directly to main menu (skip mode selection)
     else:
         # Not root - show mode selection
@@ -636,8 +640,6 @@ def interactive_simple() -> None:
             return
 
         # Mode selected: 1=Normal, 2=Root, 3=Dry-Run
-        dry_run_mode = (mode_choice == "3")
-
         # If Root Mode selected, request sudo and re-execute
         if mode_choice == "2":
             if RICH and console:
@@ -648,10 +650,39 @@ def interactive_simple() -> None:
                 p("  Root Mode requires elevated permissions.\n")
 
             # This will re-execute the program with sudo
-            # When it comes back, is_root() will be True and we skip this section
+            # When it comes back, is_root() will be True and dry_run_mode will be False
             maybe_reexec_with_sudo()
             # If we reach here, user declined sudo or it failed
             return
+
+        # If Dry-Run Mode selected, explain why root is needed and request sudo
+        elif mode_choice == "3":
+            if RICH and console:
+                console.print("\n  [yellow]ℹ[/yellow]  [bold]Dry-Run Mode necesita permisos root para:[/bold]")
+                console.print("     • Analizar el sistema completo")
+                console.print("     • Leer logs de Docker")
+                console.print("     • Calcular espacio recuperable con precisión")
+                console.print("")
+                console.print("  [dim]NO ejecutará ningún comando destructivo.[/dim]")
+                console.print("  [dim]Solo mostrará qué haría en Root Mode.[/dim]\n")
+            else:
+                p("\n  ℹ  Dry-Run Mode necesita permisos root para:")
+                p("     • Analizar el sistema completo")
+                p("     • Leer logs de Docker")
+                p("     • Calcular espacio recuperable con precisión")
+                p("")
+                p("  NO ejecutará ningún comando destructivo.")
+                p("  Solo mostrará qué haría en Root Mode.\n")
+
+            # This will re-execute the program with sudo and set dry-run env var
+            # When it comes back, is_root() will be True and dry_run_mode will be True
+            maybe_reexec_with_sudo(dry_run=True)
+            # If we reach here, user declined sudo or it failed
+            return
+
+        # Normal Mode (mode_choice == "1")
+        else:
+            dry_run_mode = False
 
     # ═══════════════════════════════════════════════════════════
     # STEP 2: Main Menu Loop (with selected mode)
