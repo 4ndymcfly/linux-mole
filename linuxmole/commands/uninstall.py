@@ -90,17 +90,25 @@ def cmd_uninstall_app(args: argparse.Namespace) -> None:
 
     # Handle special flags
     if args.list_orphans:
-        if not which("apt"):
+        if not which("apt-get"):
             line_warn("APT not available. --list-orphans requires APT.")
             return
-        p("Searching for orphaned packages...")
+        p("Searching for orphaned packages (packages that can be removed)...")
         try:
-            result = capture(["apt-mark", "showauto"])
-            orphans = result.strip().split("\n") if result.strip() else []
+            # Use apt-get autoremove --simulate to get actual orphaned packages
+            result = capture(["apt-get", "autoremove", "--simulate"])
+            orphans = []
+            for line in result.splitlines():
+                # Parse lines like "Remv package-name [version]"
+                if line.startswith("Remv "):
+                    pkg = line.split()[1]
+                    orphans.append(pkg)
+
             if orphans:
-                table("Orphaned Packages", ["Package"], [[pkg] for pkg in orphans[:50]])
+                table("Orphaned Packages (safe to remove)", ["Package"], [[pkg] for pkg in orphans[:50]])
                 p(f"\nTotal: {len(orphans)} packages")
-                p("\nTo remove: apt autoremove")
+                p("\nThese packages were installed as dependencies but are no longer needed.")
+                p("To remove: lm uninstall (option 3: Run autoremove)")
             else:
                 line_ok("No orphaned packages found")
         except Exception as e:
