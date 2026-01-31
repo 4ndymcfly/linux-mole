@@ -42,10 +42,34 @@ if TEXTUAL:
 
             percentage = (self.dir_size / self.total_size * 100) if self.total_size > 0 else 0
             size_str = format_size(self.dir_size)
+            total_str = format_size(self.total_size)
 
-            return f"""[bold cyan]Path:[/bold cyan] {self.path}
-[bold yellow]Size:[/bold yellow] {size_str}
-[bold green]Percentage:[/bold green] {percentage:.1f}% of total"""
+            # Create visual progress bar (like ncdu)
+            bar_width = 40
+            filled = int((percentage / 100) * bar_width)
+            bar_visual = "█" * filled + "░" * (bar_width - filled)
+
+            # Color based on percentage
+            if percentage > 80:
+                bar_color = "red"
+            elif percentage > 50:
+                bar_color = "yellow"
+            else:
+                bar_color = "green"
+
+            return f"""╔═══════════════════════════════════════════════════════════════════════╗
+║ [bold white]DISK USAGE ANALYZER[/bold white]                                                ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                       ║
+║ [bold cyan]Current Path:[/bold cyan]                                                 ║
+║   {self.path[:65]}{'...' if len(self.path) > 65 else ''}
+║                                                                       ║
+║ [bold yellow]Size:[/bold yellow] [bold white]{size_str:>15}[/bold white]  of  {total_str:<15}              ║
+║                                                                       ║
+║ [bold {bar_color}]Usage: {percentage:6.2f}%[/bold {bar_color}]                                               ║
+║ [{bar_color}]{bar_visual}[/{bar_color}] ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝"""
 
     class DiskAnalyzerApp(App):
         """Interactive TUI for disk usage analysis."""
@@ -57,9 +81,10 @@ if TEXTUAL:
 
         DiskUsageInfo {
             dock: top;
-            height: 5;
+            height: 15;
             border: solid $primary;
-            padding: 1;
+            padding: 0;
+            background: $panel;
         }
 
         DirectoryTree {
