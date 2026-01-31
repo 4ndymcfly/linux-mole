@@ -91,7 +91,8 @@ def print_help() -> None:
 
 def main() -> None:
     """Main CLI entry point."""
-    if len(sys.argv) == 1:
+    # Enter interactive mode if no args or only internal dry-run flag
+    if len(sys.argv) == 1 or (len(sys.argv) == 2 and sys.argv[1] == "--interactive-dry-run"):
         clear_screen()
         interactive_simple()
         return

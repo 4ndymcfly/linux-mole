@@ -595,8 +595,8 @@ def interactive_simple() -> None:
     # STEP 1: Determine execution mode
     # ═══════════════════════════════════════════════════════════
 
-    # Check if we're coming from dry-run re-execution via --dry-run flag
-    dry_run_from_args = "--dry-run" in sys.argv
+    # Check if we're coming from dry-run re-execution via internal flag
+    dry_run_from_args = "--interactive-dry-run" in sys.argv
 
     # If already running as root, check if it's dry-run mode or normal root mode
     if is_root():

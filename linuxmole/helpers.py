@@ -214,10 +214,10 @@ def maybe_reexec_with_sudo(reason: str = "", dry_run: bool = False) -> None:
         p("")
         sys.exit(0)
 
-    # Add --dry-run flag if dry-run mode
+    # Add internal flag for interactive dry-run mode
     argv = sys.argv.copy()
-    if dry_run and "--dry-run" not in argv:
-        argv.append("--dry-run")
+    if dry_run and "--interactive-dry-run" not in argv:
+        argv.append("--interactive-dry-run")
 
     args = ["sudo", sys.executable] + argv
     logger.debug(f"Re-executing with sudo: {args}")
