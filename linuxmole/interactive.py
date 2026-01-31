@@ -606,13 +606,15 @@ def interactive_simple() -> None:
         # If Root Mode selected, request sudo and re-execute
         if mode_choice == "2":
             if RICH and console:
-                console.print("\n  [yellow]→[/yellow] Requesting root permissions...\n")
+                console.print("\n  [yellow]→[/yellow] [bold]Requesting root permissions...[/bold]\n")
+                console.print("  Root Mode requires elevated permissions.\n")
             else:
                 p("\n  → Requesting root permissions...\n")
+                p("  Root Mode requires elevated permissions.\n")
 
             # This will re-execute the program with sudo
             # When it comes back, is_root() will be True and we skip this section
-            maybe_reexec_with_sudo("Root Mode requires elevated permissions.")
+            maybe_reexec_with_sudo()
             # If we reach here, user declined sudo or it failed
             return
 

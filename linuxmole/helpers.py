@@ -195,18 +195,22 @@ def pause(msg: str = "Press Enter to continue...") -> None:
     input(msg)
 
 
-def maybe_reexec_with_sudo(reason: str) -> None:
+def maybe_reexec_with_sudo(reason: str = "") -> None:
     """
     Re-execute the current script with sudo if not running as root.
 
     Args:
-        reason: Explanation of why root access is needed
+        reason: Explanation of why root access is needed (optional)
     """
     if is_root():
         return
-    p(f"[warn] {reason}")
-    if not confirm("Re-execute with sudo?", assume_yes=False):
-        p("[skip] Skipping operations that require root.")
+    if reason:
+        p(f"  {reason}")
+        p("")
+    if not confirm("  Re-execute with sudo?", assume_yes=False):
+        p("")
+        p("  Cancelled. Exiting...")
+        p("")
         sys.exit(0)
     args = ["sudo", sys.executable] + sys.argv
     logger.debug(f"Re-executing with sudo: {args}")
