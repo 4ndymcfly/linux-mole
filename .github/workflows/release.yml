@@ -51,10 +51,10 @@ jobs:
         OTHER=$(echo "$COMMITS" | grep -viE "^(add|feat|feature|new|fix|bugfix|bug|bump|update version|release):" || true)
 
         # Build changelog
-        CHANGELOG="## Cambios en esta versión\n\n"
+        CHANGELOG="## What's New\n\n"
 
         if [ ! -z "$FEATURES" ]; then
-          CHANGELOG="${CHANGELOG}### ✨ Nuevas funcionalidades\n"
+          CHANGELOG="${CHANGELOG}### ✨ Features\n"
           while IFS= read -r line; do
             [ ! -z "$line" ] && CHANGELOG="${CHANGELOG}- $line\n"
           done <<< "$FEATURES"
@@ -62,7 +62,7 @@ jobs:
         fi
 
         if [ ! -z "$FIXES" ]; then
-          CHANGELOG="${CHANGELOG}### 🐛 Correcciones\n"
+          CHANGELOG="${CHANGELOG}### 🐛 Bug Fixes\n"
           while IFS= read -r line; do
             [ ! -z "$line" ] && CHANGELOG="${CHANGELOG}- $line\n"
           done <<< "$FIXES"
@@ -70,7 +70,7 @@ jobs:
         fi
 
         if [ ! -z "$OTHER" ]; then
-          CHANGELOG="${CHANGELOG}### 🔧 Otros cambios\n"
+          CHANGELOG="${CHANGELOG}### 🔧 Other Changes\n"
           while IFS= read -r line; do
             [ ! -z "$line" ] && CHANGELOG="${CHANGELOG}- $line\n"
           done <<< "$OTHER"
@@ -79,17 +79,17 @@ jobs:
 
         # Add installation instructions
         CHANGELOG="${CHANGELOG}---\n\n"
-        CHANGELOG="${CHANGELOG}### 📦 Instalación\n\n"
+        CHANGELOG="${CHANGELOG}### 📦 Installation\n\n"
         CHANGELOG="${CHANGELOG}\`\`\`bash\n"
         CHANGELOG="${CHANGELOG}pipx install linuxmole\n"
-        CHANGELOG="${CHANGELOG}# o actualizar\n"
+        CHANGELOG="${CHANGELOG}# or upgrade\n"
         CHANGELOG="${CHANGELOG}pipx upgrade linuxmole\n"
         CHANGELOG="${CHANGELOG}\`\`\`\n\n"
-        CHANGELOG="${CHANGELOG}**Versión:** ${VERSION}\n"
+        CHANGELOG="${CHANGELOG}**Version:** ${VERSION}\n"
 
         # Add comparison link if there's a previous tag
         if [ ! -z "$LAST_TAG" ]; then
-          CHANGELOG="${CHANGELOG}**Changelog completo:** https://github.com/${GITHUB_REPOSITORY}/compare/${LAST_TAG}...${TAG}"
+          CHANGELOG="${CHANGELOG}**Full Changelog:** https://github.com/${GITHUB_REPOSITORY}/compare/${LAST_TAG}...${TAG}"
         fi
 
         # Save to output
