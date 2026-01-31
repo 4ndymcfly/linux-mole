@@ -123,34 +123,61 @@ EXAMPLES
 
 ## Installation
 
-### Recommended (pipx)
+### ✅ Recommended: pipx (Isolated Installation)
 
-1) Install pipx:
+**pipx** is the recommended way to install LinuxMole. It provides:
+- ✅ **Isolated environment** - No dependency conflicts
+- ✅ **Clean installation** - Doesn't pollute system Python
+- ✅ **Easy updates** - `pipx upgrade linuxmole`
+- ✅ **Automatic PATH** - Command available globally
+
+**Install pipx:**
 ```bash
 sudo apt update && sudo apt install -y pipx
 pipx ensurepath
 ```
 
-2) Install LinuxMole:
+**Install LinuxMole:**
 ```bash
 pipx install linuxmole
 ```
 
-Development install (latest main):
-```bash
-pipx install "git+https://github.com/4ndymcfly/linux-mole.git"
-```
-
-3) Run:
+**Run:**
 ```bash
 lm status
 ```
 
-### Legacy (optional)
+**Development version (latest from main):**
+```bash
+pipx install "git+https://github.com/4ndymcfly/linux-mole.git"
+```
+
+---
+
+### ⚠️ Alternative: pip (Not Recommended)
+
+Using `pip` directly can cause dependency conflicts with system packages:
 
 ```bash
-sudo ./install-linuxmole.sh
+# NOT recommended - can conflict with system packages
+pip install --user linuxmole
+
+# If you must use pip, at least use a virtual environment
+python3 -m venv ~/linuxmole-env
+source ~/linuxmole-env/bin/activate
+pip install linuxmole
 ```
+
+**Why pipx is better:**
+- pip installs in user/system Python → conflicts possible
+- pipx creates isolated environments → no conflicts
+- pipx manages PATH automatically → easier to use
+
+---
+
+### 🗂️ Legacy Script (Deprecated)
+
+The `install-linuxmole.sh` script is **deprecated** and no longer maintained. Use **pipx** instead.
 
 ## Commands
 
