@@ -201,16 +201,15 @@ def simple_purge() -> None:
     p("  • __pycache__/, *.pyc")
     p("  • .venv/, venv/")
     p("")
+    p("Searches in paths from: ~/.config/linuxmole/purge_paths.txt")
+    p("")
 
-    # Start path
-    start_path = input("Start path [~]: ").strip() or "~"
-
-    # Dry-run
-    dry_run = prompt_bool("Dry-run (preview only)", True)
+    # Ask for confirmation preference
+    auto_yes = not prompt_bool("Ask for confirmation before purging", True)
 
     args = argparse.Namespace(
-        path=start_path,
-        dry_run=dry_run
+        paths=False,
+        yes=auto_yes
     )
     cmd_purge(args)
 
