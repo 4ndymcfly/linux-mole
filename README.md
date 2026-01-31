@@ -59,9 +59,9 @@ LinuxMole is a Mole-inspired CLI for Linux servers with Docker. It focuses on sa
 ## Screenshots
 <table align="center">
   <tr>
-    <td align="center"><img src="screenshots/linux-mole-system-status-002.png" alt="System status" height="300"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/4ndymcfly/linux-mole/main/screenshots/linux-mole-system-status-002.png" alt="System status" height="300"></td>
     <td width="24"></td>
-    <td align="center"><img src="screenshots/linux-mole-kernel-001.png" alt="Kernel" height="300"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/4ndymcfly/linux-mole/main/screenshots/linux-mole-kernel-001.png" alt="Kernel" height="300"></td>
   </tr>
 </table>
 
