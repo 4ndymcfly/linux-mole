@@ -724,7 +724,7 @@ def interactive_simple() -> None:
                     p("\n  ℹ  Root Mode required for complete Docker information")
                     p("     Some Docker logs and details may not be available in Normal Mode\n")
 
-            args = argparse.Namespace(paths=False)
+            args = argparse.Namespace(paths=False, top_logs=20)
             cmd_status_all(args)
             pause()
 
