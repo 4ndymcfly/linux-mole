@@ -224,16 +224,14 @@ def simple_installer() -> None:
     p("  • .AppImage files")
     p("  • .iso files (disc images)")
     p("")
+    p("Searches in: ~/Downloads, ~/Desktop")
+    p("")
 
-    # Start path
-    start_path = input("Start path [~]: ").strip() or "~"
-
-    # Dry-run
-    dry_run = prompt_bool("Dry-run (preview only)", True)
+    # Ask for confirmation preference
+    auto_yes = not prompt_bool("Ask for confirmation before removing", True)
 
     args = argparse.Namespace(
-        path=start_path,
-        dry_run=dry_run
+        yes=auto_yes
     )
     cmd_installer(args)
 
