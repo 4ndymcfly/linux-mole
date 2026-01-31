@@ -57,19 +57,19 @@ if TEXTUAL:
             else:
                 bar_color = "green"
 
-            return f"""╔═══════════════════════════════════════════════════════════════════════╗
-║ [bold white]DISK USAGE ANALYZER[/bold white]                                                ║
-╠═══════════════════════════════════════════════════════════════════════╣
-║                                                                       ║
-║ [bold cyan]Current Path:[/bold cyan]                                                 ║
-║   {self.path[:65]}{'...' if len(self.path) > 65 else ''}
-║                                                                       ║
-║ [bold yellow]Size:[/bold yellow] [bold white]{size_str:>15}[/bold white]  of  {total_str:<15}              ║
-║                                                                       ║
-║ [bold {bar_color}]Usage: {percentage:6.2f}%[/bold {bar_color}]                                               ║
-║ [{bar_color}]{bar_visual}[/{bar_color}] ║
-║                                                                       ║
-╚═══════════════════════════════════════════════════════════════════════╝"""
+            # Truncate path if too long
+            display_path = self.path
+            if len(display_path) > 60:
+                display_path = "..." + display_path[-57:]
+
+            return f"""[bold white]DISK USAGE ANALYZER[/bold white]
+
+[bold cyan]Path:[/bold cyan] {display_path}
+
+[bold yellow]Size:[/bold yellow] {size_str}  /  {total_str}
+
+[bold {bar_color}]Usage: {percentage:5.1f}%[/bold {bar_color}]
+[{bar_color}]{bar_visual}[/{bar_color}]"""
 
     class DiskAnalyzerApp(App):
         """Interactive TUI for disk usage analysis."""
@@ -81,9 +81,9 @@ if TEXTUAL:
 
         DiskUsageInfo {
             dock: top;
-            height: 15;
+            height: 10;
             border: solid $primary;
-            padding: 0;
+            padding: 1;
             background: $panel;
         }
 

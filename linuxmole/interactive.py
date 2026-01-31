@@ -72,13 +72,12 @@ def print_status_indicators(dry_run_mode: bool) -> None:
     """Print current mode indicators."""
     indicators = []
 
-    if dry_run_mode:
+    if is_root():
+        indicators.append("⚠️  ROOT MODE")
+    elif dry_run_mode:
         indicators.append("🔍 DRY-RUN MODE")
     else:
         indicators.append("✓ NORMAL MODE")
-
-    if is_root():
-        indicators.append("⚠️  ROOT MODE")
 
     if indicators:
         p("  ".join(indicators))
