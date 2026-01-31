@@ -469,7 +469,7 @@ def simple_update() -> None:
     if prompt_bool("Check for updates and install?", True):
         p("")
         p("Updating LinuxMole...")
-        run(["pipx", "upgrade", "linuxmole"])
+        run(["pipx", "upgrade", "linuxmole"], dry_run=False)
         p("")
         p("✓ Update completed.")
         p("")
@@ -512,7 +512,7 @@ def simple_self_uninstall() -> None:
     p("Uninstalling LinuxMole...")
 
     if which("pipx"):
-        run(["pipx", "uninstall", "linuxmole"])
+        run(["pipx", "uninstall", "linuxmole"], dry_run=False)
         p("")
         p("✓ LinuxMole has been removed.")
         p("✓ Configuration preserved in ~/.config/linuxmole/")
