@@ -544,185 +544,251 @@ def simple_self_uninstall() -> None:
 
 
 def interactive_simple() -> None:
-    """Run the simple interactive menu."""
-    # First, select mode
+    """Run the modern interactive menu with improved UX."""
+    from linuxmole.constants import RICH, console
+
+    # ═══════════════════════════════════════════════════════════
+    # STEP 1: Initial Mode Selection (only once at startup)
+    # ═══════════════════════════════════════════════════════════
+    clear_screen()
+    print_header()
+    print_banner()
+
+    if RICH and console:
+        console.print("\n[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]")
+        console.print("  [bold cyan]SELECT EXECUTION MODE[/bold cyan]")
+        console.print("[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]\n")
+    else:
+        p("\n═══════════════════════════════════════════════════════════")
+        p("  SELECT EXECUTION MODE")
+        p("═══════════════════════════════════════════════════════════\n")
+
+    # Show root warning if applicable
+    if is_root():
+        if RICH and console:
+            console.print("  [bold red]⚠️  Running as ROOT[/bold red] - All operations will execute with elevated permissions\n")
+        else:
+            p("  ⚠️  Running as ROOT - All operations will execute with elevated permissions\n")
+
+    # Mode options
+    if RICH and console:
+        console.print("  [bold green]1[/bold green]  Normal Mode     [dim]Execute commands normally[/dim]")
+        console.print("  [bold yellow]2[/bold yellow]  Dry-Run Mode    [dim]Preview commands without executing[/dim]")
+        console.print("  [bold red]0[/bold red]  Exit\n")
+    else:
+        p("  1  Normal Mode     (Execute commands normally)")
+        p("  2  Dry-Run Mode    (Preview commands without executing)")
+        p("  0  Exit\n")
+
+    mode_choice = input("  → ").strip()
+
+    if mode_choice == "0":
+        return
+    elif mode_choice not in ("1", "2"):
+        if RICH and console:
+            console.print("\n  [red]✗[/red] Invalid option", style="bold")
+        else:
+            p("\n  ✗ Invalid option")
+        pause()
+        return
+
+    # Mode selected: 1=Normal, 2=Dry-Run
+    dry_run_mode = (mode_choice == "2")
+
+    # ═══════════════════════════════════════════════════════════
+    # STEP 2: Main Menu Loop (with selected mode)
+    # ═══════════════════════════════════════════════════════════
     while True:
         clear_screen()
         print_header()
         print_banner()
 
-        # Show ROOT MODE indicator if running as root
-        root_indicator = " ⚠️  ROOT MODE" if is_root() else ""
-        p("SELECT MODE" + root_indicator)
+        if RICH and console:
+            console.print("\n[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]")
+        else:
+            p("\n═══════════════════════════════════════════════════════════")
 
-        if is_root():
-            p("  ⚠️  Running as root - all operations will execute with elevated permissions")
-            p("")
+        print_mode_banner(dry_run_mode)
 
-        p("  1) Normal Mode")
-        p("  2) Dry-Run Mode")
-        p("  0) Exit")
-        mode_choice = input("Select an option: ").strip()
+        if RICH and console:
+            console.print("[bold white]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/bold white]\n")
+        else:
+            p("═══════════════════════════════════════════════════════════\n")
 
-        if mode_choice == "0":
-            break
-        elif mode_choice not in ("1", "2"):
-            p("Invalid option.")
-            pause()
-            continue
+        # ── MONITORING & ANALYSIS ──
+        print_category_header("🔵", "MONITORING & ANALYSIS")
+        if RICH and console:
+            console.print("     [cyan]1[/cyan]   Status (System + Docker)")
+            console.print("     [cyan]2[/cyan]   Status System only")
+            console.print("     [cyan]3[/cyan]   Status Docker only")
+            console.print("     [cyan]4[/cyan]   Analyze Disk Usage [dim](with TUI)[/dim]")
+        else:
+            p("     1   Status (System + Docker)")
+            p("     2   Status System only")
+            p("     3   Status Docker only")
+            p("     4   Analyze Disk Usage (with TUI)")
 
-        # Mode selected: 1=Normal, 2=Dry-Run
-        dry_run_mode = (mode_choice == "2")
-        mode_suffix = " (Dry-Run Mode)" if dry_run_mode else ""
+        # ── CLEANUP & MAINTENANCE ──
+        print_category_header("🟢", "CLEANUP & MAINTENANCE")
+        if RICH and console:
+            console.print("     [green]5[/green]   Clean Docker [dim](interactive)[/dim]")
+            console.print("     [green]6[/green]   Clean System [dim](interactive)[/dim]")
+            console.print("     [green]7[/green]   Purge Build Artifacts")
+            console.print("     [green]8[/green]   Remove Installer Files")
+        else:
+            p("     5   Clean Docker (interactive)")
+            p("     6   Clean System (interactive)")
+            p("     7   Purge Build Artifacts")
+            p("     8   Remove Installer Files")
 
-        # Main menu loop
-        while True:
+        # ── SYSTEM OPERATIONS ──
+        print_category_header("🟡", "SYSTEM OPERATIONS")
+        if RICH and console:
+            console.print("     [yellow]9[/yellow]   Uninstall Applications")
+            console.print("    [yellow]10[/yellow]   Optimize System")
+        else:
+            p("     9   Uninstall Applications")
+            p("    10   Optimize System")
+
+        # ── CONFIGURATION ──
+        print_category_header("🟠", "CONFIGURATION")
+        if RICH and console:
+            console.print("    [bright_yellow]11[/bright_yellow]   Manage Whitelist")
+            console.print("    [bright_yellow]12[/bright_yellow]   Manage Configuration")
+        else:
+            p("    11   Manage Whitelist")
+            p("    12   Manage Configuration")
+
+        # ── LINUXMOLE SYSTEM ──
+        print_category_header("🔴", "LINUXMOLE SYSTEM")
+        if RICH and console:
+            console.print("    [red]13[/red]   Update LinuxMole")
+            console.print("    [red]14[/red]   Self-Uninstall LinuxMole")
+        else:
+            p("    13   Update LinuxMole")
+            p("    14   Self-Uninstall LinuxMole")
+
+        # Footer
+        p("")
+        if RICH and console:
+            console.print("[dim]─────────────────────────────────────────────────────────────[/dim]")
+            console.print("    [bold white]0[/bold white]   Exit Program")
+            console.print("[dim]─────────────────────────────────────────────────────────────[/dim]\n")
+        else:
+            p("─────────────────────────────────────────────────────────────")
+            p("    0   Exit Program")
+            p("─────────────────────────────────────────────────────────────\n")
+
+        choice = input("  → ").strip()
+
+        if choice == "0":
+            if RICH and console:
+                console.print("\n  [dim]Exiting LinuxMole...[/dim]")
+            return
+
+        # ── MONITORING & ANALYSIS ──
+        elif choice == "1":  # Status (all)
             clear_screen()
             print_header()
-            print_banner()
-            print_separator()
+            if not is_root() and which("docker") and not dry_run_mode:
+                if not prompt_bool("Root permissions recommended for complete Docker information. Execute with sudo?", True):
+                    pause()
+                    continue
+                maybe_reexec_with_sudo("Executing with root permissions...")
+            args = argparse.Namespace(paths=False)
+            cmd_status_all(args)
+            pause()
 
-            p("MAIN MENU")
-            print_status_indicators(dry_run_mode)
+        elif choice == "2":  # Status system
+            clear_screen()
+            print_header()
+            args = argparse.Namespace(paths=False)
+            cmd_status_system(args)
+            pause()
 
-            # ── MONITORING & ANALYSIS ──
-            print_category_header("🔵", "MONITORING & ANALYSIS")
-            p("  1) Status (System + Docker)")
-            p("  2) Status System only")
-            p("  3) Status Docker only")
-            p("  4) Analyze Disk Usage (with TUI)")
+        elif choice == "3":  # Status docker
+            clear_screen()
+            print_header()
+            if not is_root() and which("docker") and not dry_run_mode:
+                if not prompt_bool("Root permissions recommended for complete Docker information. Execute with sudo?", True):
+                    pause()
+                    continue
+                maybe_reexec_with_sudo("Executing with root permissions...")
+            args = argparse.Namespace(top_logs=20)
+            cmd_docker_status(args)
+            pause()
 
-            # ── CLEANUP & MAINTENANCE ──
-            print_category_header("🟢", "CLEANUP & MAINTENANCE")
-            p("  5) Clean Docker (interactive)")
-            p("  6) Clean System (interactive)")
-            p("  7) Purge Build Artifacts")
-            p("  8) Remove Installer Files")
+        elif choice == "4":  # Analyze
+            clear_screen()
+            print_header()
+            simple_analyze()
+            pause()
 
-            # ── SYSTEM OPERATIONS ──
-            print_category_header("🟡", "SYSTEM OPERATIONS")
-            p("  9) Uninstall Applications")
-            p(" 10) Optimize System")
+        # ── CLEANUP & MAINTENANCE ──
+        elif choice == "5":  # Clean docker
+            clear_screen()
+            print_header()
+            if not is_root() and which("docker") and not dry_run_mode:
+                if not prompt_bool("Root permissions recommended for Docker operations. Execute with sudo?", True):
+                    pause()
+                    continue
+                maybe_reexec_with_sudo("Executing with root permissions...")
+            simple_docker_clean(dry_run_mode)
+            pause()
 
-            # ── CONFIGURATION ──
-            print_category_header("🟠", "CONFIGURATION")
-            p(" 11) Manage Whitelist")
-            p(" 12) Manage Configuration")
+        elif choice == "6":  # Clean system
+            clear_screen()
+            print_header()
+            if not is_root() and not dry_run_mode:
+                if not prompt_bool("Root permissions are required. Execute with sudo?", True):
+                    pause()
+                    continue
+                maybe_reexec_with_sudo("Executing with root permissions...")
+            simple_clean_system(dry_run_mode)
+            pause()
 
-            # ── LINUXMOLE SYSTEM ──
-            print_category_header("🔴", "LINUXMOLE SYSTEM")
-            p(" 13) Update LinuxMole")
-            p(" 14) Self-Uninstall LinuxMole")
+        elif choice == "7":  # Purge
+            clear_screen()
+            print_header()
+            simple_purge()
+            pause()
 
-            print_separator()
-            p("  0) Back to mode selection")
-            print_separator()
+        elif choice == "8":  # Installer
+            clear_screen()
+            print_header()
+            simple_installer()
+            pause()
 
-            choice = input("Select an option [1-14, 0]: ").strip()
+        # ── SYSTEM OPERATIONS ──
+        elif choice == "9":  # Uninstall
+            clear_screen()
+            print_header()
+            simple_uninstall()
+            pause()
 
-            if choice == "0":
-                break
+        elif choice == "10":  # Optimize
+            clear_screen()
+            print_header()
+            simple_optimize()
+            pause()
 
-            # ── MONITORING & ANALYSIS ──
-            elif choice == "1":  # Status (all)
-                clear_screen()
-                print_header()
-                if not is_root() and which("docker") and not dry_run_mode:
-                    if not prompt_bool("Root permissions recommended for complete Docker information. Execute with sudo?", True):
-                        pause()
-                        continue
-                    maybe_reexec_with_sudo("Executing with root permissions...")
-                args = argparse.Namespace(paths=False)
-                cmd_status_all(args)
-                pause()
+        # ── CONFIGURATION ──
+        elif choice == "11":  # Whitelist
+            simple_whitelist()  # Ya tiene su propio loop
 
-            elif choice == "2":  # Status system
-                clear_screen()
-                print_header()
-                args = argparse.Namespace(paths=False)
-                cmd_status_system(args)
-                pause()
+        elif choice == "12":  # Config
+            simple_config()
 
-            elif choice == "3":  # Status docker
-                clear_screen()
-                print_header()
-                if not is_root() and which("docker") and not dry_run_mode:
-                    if not prompt_bool("Root permissions recommended for complete Docker information. Execute with sudo?", True):
-                        pause()
-                        continue
-                    maybe_reexec_with_sudo("Executing with root permissions...")
-                args = argparse.Namespace(top_logs=20)
-                cmd_docker_status(args)
-                pause()
+        # ── LINUXMOLE SYSTEM ──
+        elif choice == "13":  # Update
+            simple_update()
 
-            elif choice == "4":  # Analyze
-                clear_screen()
-                print_header()
-                simple_analyze()
-                pause()
+        elif choice == "14":  # Self-uninstall
+            simple_self_uninstall()
 
-            # ── CLEANUP & MAINTENANCE ──
-            elif choice == "5":  # Clean docker
-                clear_screen()
-                print_header()
-                if not is_root() and which("docker") and not dry_run_mode:
-                    if not prompt_bool("Root permissions recommended for Docker operations. Execute with sudo?", True):
-                        pause()
-                        continue
-                    maybe_reexec_with_sudo("Executing with root permissions...")
-                simple_docker_clean(dry_run_mode)
-                pause()
-
-            elif choice == "6":  # Clean system
-                clear_screen()
-                print_header()
-                if not is_root() and not dry_run_mode:
-                    if not prompt_bool("Root permissions are required. Execute with sudo?", True):
-                        pause()
-                        continue
-                    maybe_reexec_with_sudo("Executing with root permissions...")
-                simple_clean_system(dry_run_mode)
-                pause()
-
-            elif choice == "7":  # Purge
-                clear_screen()
-                print_header()
-                simple_purge()
-                pause()
-
-            elif choice == "8":  # Installer
-                clear_screen()
-                print_header()
-                simple_installer()
-                pause()
-
-            # ── SYSTEM OPERATIONS ──
-            elif choice == "9":  # Uninstall
-                clear_screen()
-                print_header()
-                simple_uninstall()
-                pause()
-
-            elif choice == "10":  # Optimize
-                clear_screen()
-                print_header()
-                simple_optimize()
-                pause()
-
-            # ── CONFIGURATION ──
-            elif choice == "11":  # Whitelist
-                simple_whitelist()  # Ya tiene su propio loop
-
-            elif choice == "12":  # Config
-                simple_config()
-
-            # ── LINUXMOLE SYSTEM ──
-            elif choice == "13":  # Update
-                simple_update()
-
-            elif choice == "14":  # Self-uninstall
-                simple_self_uninstall()
-
+        else:
+            if RICH and console:
+                console.print("\n  [red]✗[/red] Invalid option", style="bold")
             else:
-                p("Invalid option.")
-                pause()
+                p("\n  ✗ Invalid option")
+            pause()
