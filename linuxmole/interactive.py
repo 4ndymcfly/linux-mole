@@ -164,42 +164,28 @@ def interactive_simple() -> None:
             elif choice == "1":
                 clear_screen()
                 print_header()
-                # Ask for root permissions first
-                if not is_root():
-                    if not prompt_bool("Root permissions are required. Execute with sudo?", True):
-                        pause()
-                        continue
-                    maybe_reexec_with_sudo("Executing with root permissions...")
+                # Status all: no root required (may show warnings for restricted data)
                 args = argparse.Namespace(paths=False)
                 cmd_status_all(args)
                 pause()
             elif choice == "2":
                 clear_screen()
                 print_header()
-                # Ask for root permissions first
-                if not is_root():
-                    if not prompt_bool("Root permissions are required. Execute with sudo?", True):
-                        pause()
-                        continue
-                    maybe_reexec_with_sudo("Executing with root permissions...")
+                # Status docker: no root required (may show warnings for logs)
                 args = argparse.Namespace(top_logs=20)
                 cmd_docker_status(args)
                 pause()
             elif choice == "3":
                 clear_screen()
                 print_header()
-                # Ask for root permissions first
-                if not is_root():
-                    if not prompt_bool("Root permissions are required. Execute with sudo?", True):
-                        pause()
-                        continue
-                    maybe_reexec_with_sudo("Executing with root permissions...")
+                # Clean docker: no root required unless truncating logs
+                # Root check is done inside clean functions if needed
                 simple_docker_clean(dry_run_mode)
                 pause()
             elif choice == "4":
                 clear_screen()
                 print_header()
-                # Ask for root permissions first
+                # Clean system: ALWAYS requires root
                 if not is_root():
                     if not prompt_bool("Root permissions are required. Execute with sudo?", True):
                         pause()
