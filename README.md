@@ -19,7 +19,7 @@ LinuxMole is a Mole-inspired CLI for Linux servers with Docker. It focuses on sa
 
 | Aspect | Status |
 |--------|--------|
-| **Version** | 1.0.3 |
+| **Version** | 1.0.4 |
 | **Tests** | 120 passing (100%) |
 | **Coverage** | 14.98% |
 | **Architecture** | Modular (28 modules) |
