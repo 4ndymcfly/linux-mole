@@ -718,8 +718,8 @@ def interactive_simple() -> None:
             if not is_root() and which("docker") and not dry_run_mode:
                 from linuxmole.constants import RICH, console
                 if RICH and console:
-                    console.print("\n  [yellow]ℹ[/yellow]  [bold]Root Mode required for complete Docker information[/bold]")
-                    console.print("     Some Docker logs and details may not be available in Normal Mode\n")
+                    console.print("\n  [yellow]ℹ  Root Mode required for complete Docker information[/yellow]")
+                    console.print("     [yellow]Some Docker logs and details may not be available in Normal Mode[/yellow]\n")
                 else:
                     p("\n  ℹ  Root Mode required for complete Docker information")
                     p("     Some Docker logs and details may not be available in Normal Mode\n")
@@ -743,8 +743,8 @@ def interactive_simple() -> None:
             if not is_root() and which("docker") and not dry_run_mode:
                 from linuxmole.constants import RICH, console
                 if RICH and console:
-                    console.print("\n  [yellow]ℹ[/yellow]  [bold]Root Mode required for complete Docker information[/bold]")
-                    console.print("     Some Docker logs and details may not be available in Normal Mode\n")
+                    console.print("\n  [yellow]ℹ  Root Mode required for complete Docker information[/yellow]")
+                    console.print("     [yellow]Some Docker logs and details may not be available in Normal Mode[/yellow]\n")
                 else:
                     p("\n  ℹ  Root Mode required for complete Docker information")
                     p("     Some Docker logs and details may not be available in Normal Mode\n")
