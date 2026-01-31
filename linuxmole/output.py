@@ -64,10 +64,10 @@ def print_header() -> None:
 def section(s: str) -> None:
     """Print a section header."""
     if RICH and console is not None:
-        console.print(f"\n\n[bold cyan]➤ {s}[/bold cyan]")
+        console.print(f"\n\n[bold cyan]● {s}[/bold cyan]")
         console.rule("", style="bold cyan")
     else:
-        p(f"\n\n➤ {s}")
+        p(f"\n\n● {s}")
 
 
 def line_ok(s: str) -> None:

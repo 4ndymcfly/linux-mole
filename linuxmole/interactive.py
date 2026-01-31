@@ -628,8 +628,8 @@ def interactive_simple() -> None:
             elif choice == "1":  # Status (all)
                 clear_screen()
                 print_header()
-                if not is_root() and docker_logs_dir_exists() and not can_read_docker_logs():
-                    if not prompt_bool("Root permissions recommended to read Docker logs. Execute with sudo?", True):
+                if not is_root() and which("docker") and not dry_run_mode:
+                    if not prompt_bool("Root permissions recommended for complete Docker information. Execute with sudo?", True):
                         pause()
                         continue
                     maybe_reexec_with_sudo("Executing with root permissions...")
@@ -647,8 +647,8 @@ def interactive_simple() -> None:
             elif choice == "3":  # Status docker
                 clear_screen()
                 print_header()
-                if not is_root() and docker_logs_dir_exists() and not can_read_docker_logs():
-                    if not prompt_bool("Root permissions recommended to read Docker logs. Execute with sudo?", True):
+                if not is_root() and which("docker") and not dry_run_mode:
+                    if not prompt_bool("Root permissions recommended for complete Docker information. Execute with sudo?", True):
                         pause()
                         continue
                     maybe_reexec_with_sudo("Executing with root permissions...")
@@ -666,8 +666,8 @@ def interactive_simple() -> None:
             elif choice == "5":  # Clean docker
                 clear_screen()
                 print_header()
-                if not is_root() and docker_logs_dir_exists() and not can_read_docker_logs():
-                    if not prompt_bool("Root permissions recommended for log operations. Execute with sudo?", True):
+                if not is_root() and which("docker") and not dry_run_mode:
+                    if not prompt_bool("Root permissions recommended for Docker operations. Execute with sudo?", True):
                         pause()
                         continue
                     maybe_reexec_with_sudo("Executing with root permissions...")
