@@ -115,6 +115,12 @@ if TEXTUAL:
             # Calculate total size of start path
             self.total_size = du_bytes(self.start_path) or 1
 
+            # Initialize disk info with root path
+            disk_info = self.query_one("#disk_info", DiskUsageInfo)
+            disk_info.path = self.start_path
+            disk_info.dir_size = self.total_size
+            disk_info.total_size = self.total_size
+
         def on_directory_tree_directory_selected(
             self, event: DirectoryTree.DirectorySelected
         ) -> None:
