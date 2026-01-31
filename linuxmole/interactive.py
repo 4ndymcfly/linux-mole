@@ -127,7 +127,15 @@ def interactive_simple() -> None:
         clear_screen()
         print_header()
         print_banner()
-        p("SELECT MODE")
+
+        # Show ROOT MODE indicator if running as root
+        root_indicator = " ⚠️  ROOT MODE" if is_root() else ""
+        p("SELECT MODE" + root_indicator)
+
+        if is_root():
+            p("  ⚠️  Running as root - all operations will execute with elevated permissions")
+            p("")
+
         p("  1) Normal Mode")
         p("  2) Dry-Run Mode")
         p("  0) Exit")
@@ -149,7 +157,15 @@ def interactive_simple() -> None:
             clear_screen()
             print_header()
             print_banner()
-            p("MAIN MENU" + mode_suffix)
+
+            # Show ROOT MODE indicator if running as root
+            root_indicator = " ⚠️  ROOT MODE" if is_root() else ""
+            p("MAIN MENU" + mode_suffix + root_indicator)
+
+            if is_root():
+                p("  ⚠️  All operations will execute with root permissions")
+                p("")
+
             p(f"  1) Status (all){mode_suffix}")
             p(f"  2) Status docker{mode_suffix}")
             p(f"  3) Clean docker{mode_suffix}")
