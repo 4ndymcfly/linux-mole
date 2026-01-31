@@ -176,7 +176,7 @@ def ensure_config_files() -> None:
         whitelist_path().write_text("# Add glob patterns to protect paths\n", encoding="utf-8")
     if not purge_paths_file().exists():
         purge_paths_file().write_text("# One path per line\n", encoding="utf-8")
-    if not config_path().exists():
+    if not config_file_path().exists():
         save_config(default_config())
 
 
