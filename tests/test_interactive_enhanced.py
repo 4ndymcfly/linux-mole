@@ -19,8 +19,8 @@ from linuxmole.interactive import (
     simple_update,
     simple_self_uninstall,
     print_category_header,
-    print_separator,
-    print_status_indicators
+    print_submenu_header,
+    print_mode_banner
 )
 
 
@@ -36,36 +36,35 @@ def test_print_category_header(capsys):
     assert "TEST CATEGORY" in captured.out
 
 
-def test_print_separator(capsys):
-    """Test separator printing."""
-    print_separator()
+def test_print_submenu_header(capsys):
+    """Test submenu header printing."""
+    print_submenu_header("TEST MENU")
     captured = capsys.readouterr()
-    assert "═" in captured.out
-    assert len(captured.out.strip()) >= 65
+    assert "TEST MENU" in captured.out
 
 
-def test_print_status_indicators_normal(capsys):
-    """Test status indicators in normal mode."""
+def test_print_mode_banner_normal(capsys):
+    """Test mode banner in normal mode."""
     with patch('linuxmole.interactive.is_root', return_value=False):
-        print_status_indicators(dry_run_mode=False)
+        print_mode_banner(dry_run_mode=False)
         captured = capsys.readouterr()
-        assert "NORMAL MODE" in captured.out or "✓" in captured.out
+        assert "NORMAL MODE" in captured.out
 
 
-def test_print_status_indicators_dry_run(capsys):
-    """Test status indicators in dry-run mode."""
-    with patch('linuxmole.interactive.is_root', return_value=False):
-        print_status_indicators(dry_run_mode=True)
-        captured = capsys.readouterr()
-        assert "DRY-RUN" in captured.out or "🔍" in captured.out
-
-
-def test_print_status_indicators_root(capsys):
-    """Test status indicators with root."""
+def test_print_mode_banner_dry_run(capsys):
+    """Test mode banner in dry-run mode."""
     with patch('linuxmole.interactive.is_root', return_value=True):
-        print_status_indicators(dry_run_mode=False)
+        print_mode_banner(dry_run_mode=True)
         captured = capsys.readouterr()
-        assert "ROOT MODE" in captured.out or "⚠️" in captured.out
+        assert "DRY-RUN MODE" in captured.out
+
+
+def test_print_mode_banner_root(capsys):
+    """Test mode banner in root mode."""
+    with patch('linuxmole.interactive.is_root', return_value=True):
+        print_mode_banner(dry_run_mode=False)
+        captured = capsys.readouterr()
+        assert "ROOT MODE" in captured.out
 
 
 # ══════════════════════════════════════════════════════════════
