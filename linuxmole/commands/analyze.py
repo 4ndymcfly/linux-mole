@@ -84,8 +84,10 @@ if TEXTUAL:
             Binding("backspace", "parent_directory", "Parent", show=False),
             Binding("escape", "parent_directory", "Parent", show=False),
             Binding("d", "delete_item", "Delete", key_display="D"),
-            ("up", "cursor_up", "Up"),
-            ("down", "cursor_down", "Down"),
+            Binding("up", "cursor_up", "Up", show=False),
+            Binding("down", "cursor_down", "Down", show=False),
+            Binding("right", "enter_directory", "Right", show=False),
+            Binding("left", "parent_directory", "Left", show=False),
         ]
 
         TITLE = "LinuxMole - Disk Usage Analyzer (ncdu-style)"
@@ -113,6 +115,12 @@ if TEXTUAL:
 
         def on_mount(self) -> None:
             """Initialize the table and load data."""
+            # Log terminal info for debugging
+            import os as os_module
+            term = os_module.environ.get('TERM', 'unknown')
+            term_program = os_module.environ.get('TERM_PROGRAM', 'unknown')
+            logger.debug(f"Terminal: TERM={term}, TERM_PROGRAM={term_program}")
+
             table = self.query_one("#items_table", DataTable)
             table.cursor_type = "row"
             table.zebra_stripes = True
@@ -230,6 +238,10 @@ if TEXTUAL:
 
             return items
 
+        def on_data_table_row_selected(self, event) -> None:
+            """Handle row selection (double-click or enter on some terminals)."""
+            self.action_enter_directory()
+
         def action_enter_directory(self) -> None:
             """Enter the selected directory or open file."""
             table = self.query_one("#items_table", DataTable)
@@ -256,15 +268,25 @@ if TEXTUAL:
                     self.action_parent_directory()
                     return
 
-                # Get the actual path from row key if available
-                # If not, try to construct it
-                if hasattr(table.get_row(row_key), 'key'):
-                    full_path = table.get_row(row_key).key
-                else:
+                # Try to get path from row metadata first
+                try:
+                    # Get all rows to find the one with matching index
+                    row_index = 0
+                    for r in table.rows:
+                        if row_index == row_key:
+                            if hasattr(r, 'key') and r.key:
+                                full_path = r.key
+                                break
+                        row_index += 1
+                    else:
+                        # Fallback: extract from name
+                        raise AttributeError("No key found")
+                except (AttributeError, IndexError):
                     # Fallback: extract from name
                     # Remove ANSI codes and formatting
                     clean_name = name_cell.replace("[bold cyan]", "").replace("[/bold cyan]", "")
-                    clean_name = clean_name.split("[")[0].strip()  # Remove any remaining formatting
+                    clean_name = clean_name.replace("[dim]", "").replace("[/dim]", "")
+                    clean_name = clean_name.split("(")[0].strip()  # Remove (parent directory) etc
                     clean_name = clean_name.lstrip("/")  # Remove leading /
                     full_path = os.path.join(self.current_path, clean_name)
 
