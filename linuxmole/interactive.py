@@ -532,6 +532,8 @@ def simple_config() -> None:
 
 def simple_update() -> None:
     """Update LinuxMole to latest version."""
+    import os
+
     clear_screen()
     print_header()
     print_submenu_header("UPDATE LINUXMOLE")
@@ -550,7 +552,14 @@ def simple_update() -> None:
     if prompt_bool("🟢 Check for updates and install?", True):
         p("")
         p("Updating LinuxMole...")
-        run(["pipx", "upgrade", "linuxmole"], dry_run=False)
+
+        # If running as root via sudo, run pipx as the original user
+        sudo_user = os.environ.get("SUDO_USER")
+        if is_root() and sudo_user:
+            run(["sudo", "-u", sudo_user, "pipx", "upgrade", "linuxmole"], dry_run=False)
+        else:
+            run(["pipx", "upgrade", "linuxmole"], dry_run=False)
+
         p("")
         p("✓ Update completed.")
         p("")
@@ -592,7 +601,14 @@ def simple_self_uninstall() -> None:
     p("Uninstalling LinuxMole...")
 
     if which("pipx"):
-        run(["pipx", "uninstall", "linuxmole"], dry_run=False)
+        # If running as root via sudo, run pipx as the original user
+        import os
+        sudo_user = os.environ.get("SUDO_USER")
+        if is_root() and sudo_user:
+            run(["sudo", "-u", sudo_user, "pipx", "uninstall", "linuxmole"], dry_run=False)
+        else:
+            run(["pipx", "uninstall", "linuxmole"], dry_run=False)
+
         p("")
         p("✓ LinuxMole has been removed.")
         p("✓ Configuration preserved in ~/.config/linuxmole/")
