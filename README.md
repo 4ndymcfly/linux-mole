@@ -2,12 +2,12 @@
 
 *Safe maintenance for Linux + Docker, inspired by [Mole for macOS](https://github.com/tw93/mole), a wonderful project.*
 
-[![PyPI version](https://img.shields.io/pypi/v/linuxmole?style=flat-square&v=1.3.0)](https://pypi.org/project/linuxmole/)
-[![Python](https://img.shields.io/pypi/pyversions/linuxmole?style=flat-square)](https://pypi.org/project/linuxmole/)
-[![Downloads](https://img.shields.io/pypi/dm/linuxmole?style=flat-square)](https://pypi.org/project/linuxmole/)
+[![PyPI version](https://img.shields.io/pypi/v/linuxmole?style=flat-square&cacheSeconds=300)](https://pypi.org/project/linuxmole/)
+[![Python](https://img.shields.io/pypi/pyversions/linuxmole?style=flat-square&cacheSeconds=300)](https://pypi.org/project/linuxmole/)
+[![Downloads](https://img.shields.io/pypi/dm/linuxmole?style=flat-square&cacheSeconds=300)](https://pypi.org/project/linuxmole/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/4ndymcfly/linux-mole?style=flat-square)](https://github.com/4ndymcfly/linux-mole/stargazers)
-[![CI](https://img.shields.io/github/actions/workflow/status/4ndymcfly/linux-mole/ci.yml?branch=main&label=tests&style=flat-square)](https://github.com/4ndymcfly/linux-mole/actions/workflows/ci.yml)
+[![Stars](https://img.shields.io/github/stars/4ndymcfly/linux-mole?style=flat-square&cacheSeconds=300)](https://github.com/4ndymcfly/linux-mole/stargazers)
+[![CI](https://img.shields.io/github/actions/workflow/status/4ndymcfly/linux-mole/ci.yml?branch=main&label=tests&style=flat-square&cacheSeconds=300)](https://github.com/4ndymcfly/linux-mole/actions/workflows/ci.yml)
 
 ## Overview
 
