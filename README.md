@@ -19,7 +19,7 @@ LinuxMole is a Mole-inspired CLI for Linux servers with Docker. It focuses on sa
 
 | Aspect | Status |
 |--------|--------|
-| **Version** | 1.2.0 |
+| **Version** | 1.3.0 |
 | **Tests** | 142 passing (100%) |
 | **Coverage** | 19.82% |
 | **Architecture** | Modular (28 modules) |
@@ -28,10 +28,10 @@ LinuxMole is a Mole-inspired CLI for Linux servers with Docker. It focuses on sa
 
 ### Implemented Features ✅
 
-- ✅ **Interactive menu with all 14 commands** (new in v1.1.0)
+- ✅ **Interactive menu with all 14 commands** (redesigned in v1.2.0)
+- ✅ **ncdu-style Disk Analyzer TUI** (new in v1.3.0) - flat list navigation with Enter/Backspace
 - ✅ Complete system and Docker status monitoring
 - ✅ Safe cleanup operations (system + Docker)
-- ✅ Disk usage analyzer with interactive TUI
 - ✅ Application uninstaller (apt/snap/flatpak)
 - ✅ System optimization (databases, network, services)
 - ✅ Whitelist management and config file support
@@ -88,6 +88,31 @@ Menu items use intuitive color coding for quick identification:
 - Docker-aware maintenance (images, networks, volumes, logs)
 - System maintenance (journald, tmpfiles, apt, caches)
 - Whitelist support and detailed preview logs
+
+### 📊 Disk Analyzer TUI (New in v1.3.0)
+
+The `lm analyze --tui` command now features a complete **ncdu-style redesign** for better disk usage analysis:
+
+**Key Features:**
+- **Flat List Navigation** - View and navigate one directory level at a time (like ncdu)
+- **Intuitive Controls** - `Enter` to dive into directories, `Backspace` to go back
+- **Smart Sorting** - Items automatically sorted by size (largest first)
+- **Visual Bars** - Proportional usage bars relative to the largest item in current view
+- **Better Performance** - Loads only current directory (not entire tree)
+- **Improved Diagnostics** - Clear error messages if Textual library is missing
+
+**Keybindings:**
+- `↑/↓` - Navigate items
+- `Enter/→` - Enter directory
+- `Backspace/←/Esc` - Go to parent
+- `R` - Refresh view
+- `Q` - Quit
+
+**Usage:**
+```bash
+lm analyze --tui           # Interactive TUI in current directory
+lm analyze /var --tui      # Interactive TUI for specific path
+```
 
 ## Screenshots
 
