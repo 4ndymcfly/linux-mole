@@ -724,30 +724,30 @@ def interactive_simple() -> None:
 
         menu_options.append((option_num, "status_all"))
         if RICH and console:
-            console.print(f"     [cyan]{option_num}[/cyan]   Status (System + Docker)")
+            console.print(f"     [cyan]{option_num:>2}[/cyan]   Status (System + Docker)")
         else:
-            p(f"     {option_num}   Status (System + Docker)")
+            p(f"     {option_num:>2}   Status (System + Docker)")
         option_num += 1
 
         menu_options.append((option_num, "status_system"))
         if RICH and console:
-            console.print(f"     [cyan]{option_num}[/cyan]   Status System only")
+            console.print(f"     [cyan]{option_num:>2}[/cyan]   Status System only")
         else:
-            p(f"     {option_num}   Status System only")
+            p(f"     {option_num:>2}   Status System only")
         option_num += 1
 
         menu_options.append((option_num, "status_docker"))
         if RICH and console:
-            console.print(f"     [cyan]{option_num}[/cyan]   Status Docker only")
+            console.print(f"     [cyan]{option_num:>2}[/cyan]   Status Docker only")
         else:
-            p(f"     {option_num}   Status Docker only")
+            p(f"     {option_num:>2}   Status Docker only")
         option_num += 1
 
         menu_options.append((option_num, "analyze"))
         if RICH and console:
-            console.print(f"     [cyan]{option_num}[/cyan]   Analyze Disk Usage [dim](with TUI)[/dim]")
+            console.print(f"     [cyan]{option_num:>2}[/cyan]   Analyze Disk Usage [dim](with TUI)[/dim]")
         else:
-            p(f"     {option_num}   Analyze Disk Usage (with TUI)")
+            p(f"     {option_num:>2}   Analyze Disk Usage (with TUI)")
         option_num += 1
 
         # ── CLEANUP & MAINTENANCE ──
@@ -755,30 +755,30 @@ def interactive_simple() -> None:
 
         menu_options.append((option_num, "clean_docker"))
         if RICH and console:
-            console.print(f"     [green]{option_num}[/green]   Clean Docker [dim](interactive)[/dim]")
+            console.print(f"     [green]{option_num:>2}[/green]   Clean Docker [dim](interactive)[/dim]")
         else:
-            p(f"     {option_num}   Clean Docker (interactive)")
+            p(f"     {option_num:>2}   Clean Docker (interactive)")
         option_num += 1
 
         menu_options.append((option_num, "clean_system"))
         if RICH and console:
-            console.print(f"     [green]{option_num}[/green]   Clean System [dim](interactive)[/dim]")
+            console.print(f"     [green]{option_num:>2}[/green]   Clean System [dim](interactive)[/dim]")
         else:
-            p(f"     {option_num}   Clean System (interactive)")
+            p(f"     {option_num:>2}   Clean System (interactive)")
         option_num += 1
 
         menu_options.append((option_num, "purge"))
         if RICH and console:
-            console.print(f"     [green]{option_num}[/green]   Purge Build Artifacts")
+            console.print(f"     [green]{option_num:>2}[/green]   Purge Build Artifacts")
         else:
-            p(f"     {option_num}   Purge Build Artifacts")
+            p(f"     {option_num:>2}   Purge Build Artifacts")
         option_num += 1
 
         menu_options.append((option_num, "installer"))
         if RICH and console:
-            console.print(f"     [green]{option_num}[/green]   Remove Installer Files")
+            console.print(f"     [green]{option_num:>2}[/green]   Remove Installer Files")
         else:
-            p(f"     {option_num}   Remove Installer Files")
+            p(f"     {option_num:>2}   Remove Installer Files")
         option_num += 1
 
         # ── SYSTEM OPERATIONS ──
@@ -786,18 +786,18 @@ def interactive_simple() -> None:
 
         menu_options.append((option_num, "uninstall"))
         if RICH and console:
-            console.print(f"     [yellow]{option_num}[/yellow]   Uninstall Applications")
+            console.print(f"     [yellow]{option_num:>2}[/yellow]   Uninstall Applications")
         else:
-            p(f"     {option_num}   Uninstall Applications")
+            p(f"     {option_num:>2}   Uninstall Applications")
         option_num += 1
 
         # Optimize System - Only in Root Mode
         if is_root():
             menu_options.append((option_num, "optimize"))
             if RICH and console:
-                console.print(f"     [yellow]{option_num}[/yellow]   Optimize System")
+                console.print(f"     [yellow]{option_num:>2}[/yellow]   Optimize System")
             else:
-                p(f"     {option_num}   Optimize System")
+                p(f"     {option_num:>2}   Optimize System")
             option_num += 1
 
         # ── CONFIGURATION ──
@@ -805,16 +805,16 @@ def interactive_simple() -> None:
 
         menu_options.append((option_num, "whitelist"))
         if RICH and console:
-            console.print(f"    [bright_yellow]{option_num}[/bright_yellow]   Manage Whitelist")
+            console.print(f"    [bright_yellow]{option_num:>2}[/bright_yellow]   Manage Whitelist")
         else:
-            p(f"    {option_num}   Manage Whitelist")
+            p(f"    {option_num:>2}   Manage Whitelist")
         option_num += 1
 
         menu_options.append((option_num, "config"))
         if RICH and console:
-            console.print(f"    [bright_yellow]{option_num}[/bright_yellow]   Manage Configuration")
+            console.print(f"    [bright_yellow]{option_num:>2}[/bright_yellow]   Manage Configuration")
         else:
-            p(f"    {option_num}   Manage Configuration")
+            p(f"    {option_num:>2}   Manage Configuration")
         option_num += 1
 
         # ── LINUXMOLE SYSTEM ──
@@ -825,16 +825,16 @@ def interactive_simple() -> None:
 
             menu_options.append((option_num, "update"))
             if RICH and console:
-                console.print(f"    [red]{option_num}[/red]   Update LinuxMole")
+                console.print(f"    [red]{option_num:>2}[/red]   Update LinuxMole")
             else:
-                p(f"    {option_num}   Update LinuxMole")
+                p(f"    {option_num:>2}   Update LinuxMole")
             option_num += 1
 
             menu_options.append((option_num, "self_uninstall"))
             if RICH and console:
-                console.print(f"    [red]{option_num}[/red]   Self-Uninstall LinuxMole")
+                console.print(f"    [red]{option_num:>2}[/red]   Self-Uninstall LinuxMole")
             else:
-                p(f"    {option_num}   Self-Uninstall LinuxMole")
+                p(f"    {option_num:>2}   Self-Uninstall LinuxMole")
             option_num += 1
 
         # Footer
