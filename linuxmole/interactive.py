@@ -818,8 +818,9 @@ def interactive_simple() -> None:
         option_num += 1
 
         # ── LINUXMOLE SYSTEM ──
-        # Update and Self-Uninstall - Only in Root Mode
-        if is_root():
+        # Update and Self-Uninstall - Only in Root Mode (not Dry-Run)
+        # Dry-run mode shouldn't show these because they're meta-operations on LinuxMole itself
+        if is_root() and not dry_run_mode:
             print_category_header("🔴", "LINUXMOLE SYSTEM")
 
             menu_options.append((option_num, "update"))
