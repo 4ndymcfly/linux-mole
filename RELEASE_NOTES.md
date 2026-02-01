@@ -1,66 +1,61 @@
-# Release Notes - v1.3.0
+# Release Notes - v1.3.1
 
-## 🖥️ TUI Disk Analyzer - ncdu-style Redesign
+## 🐛 Bug Fixes - TUI Terminal Compatibility
 
-### New Features
+### Fixed Issues
 
-- **ncdu-style Interface** - Complete redesign of the Disk Analyzer TUI (`lm analyze --tui`)
-  - Flat list navigation instead of hierarchical tree
-  - Enter/Backspace navigation similar to ncdu
-  - Current directory focus with parent navigation (..)
-  - Sorted by size (descending) for quick identification
-  - Proportional bars relative to largest item in current level
+- **Fixed TUI not opening in Kitty terminal**
+  - Corrected incorrect Binding syntax for up/down arrow keys
+  - Changed from tuple format to proper `Binding()` objects
+  - Resolves black screen issue in certain terminals
 
-- **New Architecture**
-  - `DiskUsageHeader` widget - Display current path and statistics
-  - `NcduApp` - Main application with DataTable (replaces DirectoryTree)
-  - Navigation history stack - Smart back navigation
+- **Fixed Enter key not working in Termius and other terminals**
+  - Added `on_data_table_row_selected()` event handler as fallback
+  - Provides alternative method for directory navigation
+  - Ensures Enter key works across different terminal implementations
 
-- **Improved Error Diagnostics**
-  - `TEXTUAL_ERROR` variable captures specific import errors
-  - Clear error messages when Textual library is unavailable
-  - Automatic offer to install/upgrade textual if missing
-  - Clean fallback to table view if TUI fails
+- **Improved navigation controls**
+  - Added right arrow (`→`) as alternative to Enter for entering directories
+  - Added left arrow (`←`) as alternative to Backspace for going to parent
+  - More intuitive and flexible navigation options
 
-### Improvements
+- **Better path extraction from table rows**
+  - Improved markup cleanup logic
+  - Fixed issue with paths containing special characters
+  - Better fallback mechanism when row metadata is unavailable
+  - Correctly handles parent directory navigation
 
-- **Better Performance** - Loads only current directory level (not entire tree)
-- **Intuitive Navigation** - Arrow keys + Enter/Backspace for directory traversal
-- **Better Visualization** - Bars scaled to max item in each level for better contrast
-- **Color Coding**:
-  - Cyan: Directories
-  - Yellow: Size values
-  - Green: Usage bars
-  - Dim: Parent directory marker
-
-### Keybindings
-
-| Key | Action |
-|-----|--------|
-| `↑/↓` | Move cursor |
-| `Enter/→` | Enter directory |
-| `Backspace/←/Esc` | Go to parent |
-| `R` | Refresh current view |
-| `D` | Delete item (placeholder) |
-| `Q` | Quit TUI |
+- **Terminal detection and logging**
+  - Added terminal environment detection (`$TERM`, `$TERM_PROGRAM`)
+  - Improved debugging output for troubleshooting terminal issues
+  - Helps identify terminal compatibility problems
 
 ### Technical Changes
 
-- Added `TEXTUAL_ERROR` to `linuxmole/constants.py` for better diagnostics
-- Imported `DataTable` widget in constants
-- Complete rewrite of `linuxmole/commands/analyze.py` with ncdu-style implementation
-- New `DiskUsageHeader` reactive widget for path/stats display
-- Navigation history using stack pattern
-- Optimized directory scanning with `os.scandir()`
+- Fixed `Binding()` objects in `BINDINGS` list (previously used tuples)
+- Enhanced `action_enter_directory()` with better error handling
+- Improved markup stripping in path name extraction
+- Added comprehensive terminal compatibility test script
 
-### Bug Fixes
+### New Navigation Keys
 
-- Fixed silent Textual import failures causing black screen
-- Improved error handling in TUI initialization
-- Better permission error handling during directory scanning
+| Action | Keys (all work) |
+|--------|-----------------|
+| Enter directory | `Enter`, `→` (right arrow) |
+| Parent directory | `Backspace`, `←` (left arrow), `Esc` |
+| Move cursor | `↑`, `↓` |
+| Refresh | `R` |
+| Delete | `D` (placeholder) |
+| Quit | `Q` |
+
+### Testing
+
+- Verified on Kitty terminal ✅
+- Verified on Termius terminal ✅
+- Added `test_tui_terminal.py` script for compatibility testing
 
 ---
 
-**Previous Release**: [v1.2.0 - Major UX Redesign](https://github.com/4ndymcfly/linux-mole/releases/tag/v1.2.0)
+**Previous Release**: [v1.3.0 - ncdu-style TUI Disk Analyzer](https://github.com/4ndymcfly/linux-mole/releases/tag/v1.3.0)
 
-**Full Changelog**: https://github.com/4ndymcfly/linux-mole/compare/v1.2.0...v1.3.0
+**Full Changelog**: https://github.com/4ndymcfly/linux-mole/compare/v1.3.0...v1.3.1
