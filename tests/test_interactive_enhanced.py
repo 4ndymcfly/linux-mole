@@ -105,35 +105,30 @@ def test_simple_analyze_custom(mock_prompt, mock_input, mock_cmd):
 
 
 @patch('linuxmole.interactive.cmd_purge')
-@patch('linuxmole.interactive.input')
 @patch('linuxmole.interactive.prompt_bool')
-def test_simple_purge(mock_prompt, mock_input, mock_cmd):
+def test_simple_purge(mock_prompt, mock_cmd):
     """Test purge wizard."""
-    mock_input.return_value = "/home/user"
-    mock_prompt.return_value = True  # dry_run=True
+    mock_prompt.return_value = False  # Ask for confirmation (not auto_yes)
 
     simple_purge()
 
     mock_cmd.assert_called_once()
     args = mock_cmd.call_args[0][0]
-    assert args.path == "/home/user"
-    assert args.dry_run is True
+    assert args.paths is False
+    assert args.yes is False
 
 
 @patch('linuxmole.interactive.cmd_installer')
-@patch('linuxmole.interactive.input')
 @patch('linuxmole.interactive.prompt_bool')
-def test_simple_installer(mock_prompt, mock_input, mock_cmd):
+def test_simple_installer(mock_prompt, mock_cmd):
     """Test installer wizard."""
-    mock_input.return_value = "~"
-    mock_prompt.return_value = True  # dry_run=True
+    mock_prompt.return_value = False  # Ask for confirmation (not auto_yes)
 
     simple_installer()
 
     mock_cmd.assert_called_once()
     args = mock_cmd.call_args[0][0]
-    assert args.path == "~"
-    assert args.dry_run is True
+    assert args.yes is False
 
 
 # ══════════════════════════════════════════════════════════════
@@ -290,18 +285,20 @@ def test_simple_config_edit(mock_pause, mock_header, mock_clear, mock_input, moc
 # Wizard Function Tests - System
 # ══════════════════════════════════════════════════════════════
 
+@patch('linuxmole.interactive.is_root')
 @patch('linuxmole.interactive.run')
 @patch('linuxmole.interactive.which')
 @patch('linuxmole.interactive.prompt_bool')
 @patch('linuxmole.interactive.pause')
-def test_simple_update_success(mock_pause, mock_prompt, mock_which, mock_run):
+def test_simple_update_success(mock_pause, mock_prompt, mock_which, mock_run, mock_is_root):
     """Test update wizard - success."""
     mock_which.return_value = "/usr/bin/pipx"
     mock_prompt.return_value = True
+    mock_is_root.return_value = False
 
     simple_update()
 
-    mock_run.assert_called_once_with(["pipx", "upgrade", "linuxmole"])
+    mock_run.assert_called_once_with(["pipx", "upgrade", "linuxmole"], dry_run=False)
 
 
 @patch('linuxmole.interactive.which')
@@ -316,21 +313,20 @@ def test_simple_update_no_pipx(mock_pause, mock_which):
     mock_pause.assert_called_once()
 
 
+@patch('linuxmole.interactive.is_root')
 @patch('linuxmole.interactive.run')
 @patch('linuxmole.interactive.which')
 @patch('linuxmole.interactive.prompt_bool')
-@patch('linuxmole.interactive.input')
-@patch('sys.exit')
-def test_simple_self_uninstall_confirmed(mock_exit, mock_input, mock_prompt, mock_which, mock_run):
+@patch('linuxmole.interactive.pause')
+def test_simple_self_uninstall_confirmed(mock_pause, mock_prompt, mock_which, mock_run, mock_is_root):
     """Test self-uninstall - user confirms."""
     mock_which.return_value = "/usr/bin/pipx"
     mock_prompt.side_effect = [True, True]  # Two confirmations
-    mock_input.return_value = ""  # Press Enter
+    mock_is_root.return_value = False
 
     simple_self_uninstall()
 
-    mock_run.assert_called_once_with(["pipx", "uninstall", "linuxmole"])
-    mock_exit.assert_called_once_with(0)
+    mock_run.assert_called_once_with(["pipx", "uninstall", "linuxmole"], dry_run=False)
 
 
 @patch('linuxmole.interactive.prompt_bool')
