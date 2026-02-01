@@ -108,7 +108,7 @@ def test_simple_analyze_custom(mock_prompt, mock_input, mock_cmd):
 @patch('linuxmole.interactive.prompt_bool')
 def test_simple_purge(mock_prompt, mock_cmd):
     """Test purge wizard."""
-    mock_prompt.return_value = False  # Ask for confirmation (not auto_yes)
+    mock_prompt.return_value = True  # Ask for confirmation (inverted to not auto_yes)
 
     simple_purge()
 
@@ -122,7 +122,7 @@ def test_simple_purge(mock_prompt, mock_cmd):
 @patch('linuxmole.interactive.prompt_bool')
 def test_simple_installer(mock_prompt, mock_cmd):
     """Test installer wizard."""
-    mock_prompt.return_value = False  # Ask for confirmation (not auto_yes)
+    mock_prompt.return_value = True  # Ask for confirmation (inverted to not auto_yes)
 
     simple_installer()
 
@@ -168,12 +168,16 @@ def test_simple_uninstall_list_orphans(mock_pause, mock_input, mock_cmd):
 
 
 @patch('linuxmole.interactive.cmd_uninstall_app')
+@patch('linuxmole.interactive.maybe_reexec_with_sudo')
+@patch('linuxmole.interactive.is_root')
 @patch('linuxmole.interactive.input')
 @patch('linuxmole.interactive.prompt_bool')
-def test_simple_uninstall_autoremove(mock_prompt, mock_input, mock_cmd):
+@patch('linuxmole.interactive.pause')
+def test_simple_uninstall_autoremove(mock_pause, mock_prompt, mock_input, mock_is_root, mock_reexec, mock_cmd):
     """Test uninstall wizard - autoremove."""
     mock_input.return_value = "3"  # Option 3: autoremove
-    mock_prompt.return_value = True  # Confirm
+    mock_prompt.side_effect = [True, True]  # Confirm autoremove, confirm sudo
+    mock_is_root.return_value = False  # Not root initially
 
     simple_uninstall()
 
@@ -313,20 +317,24 @@ def test_simple_update_no_pipx(mock_pause, mock_which):
     mock_pause.assert_called_once()
 
 
+@patch('sys.exit')
 @patch('linuxmole.interactive.is_root')
 @patch('linuxmole.interactive.run')
 @patch('linuxmole.interactive.which')
 @patch('linuxmole.interactive.prompt_bool')
+@patch('linuxmole.interactive.input')
 @patch('linuxmole.interactive.pause')
-def test_simple_self_uninstall_confirmed(mock_pause, mock_prompt, mock_which, mock_run, mock_is_root):
+def test_simple_self_uninstall_confirmed(mock_pause, mock_input, mock_prompt, mock_which, mock_run, mock_is_root, mock_exit):
     """Test self-uninstall - user confirms."""
     mock_which.return_value = "/usr/bin/pipx"
     mock_prompt.side_effect = [True, True]  # Two confirmations
     mock_is_root.return_value = False
+    mock_input.return_value = ""  # Press Enter to exit
 
     simple_self_uninstall()
 
     mock_run.assert_called_once_with(["pipx", "uninstall", "linuxmole"], dry_run=False)
+    mock_exit.assert_called_once_with(0)
 
 
 @patch('linuxmole.interactive.prompt_bool')
