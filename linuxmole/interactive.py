@@ -312,7 +312,8 @@ def simple_uninstall(dry_run_mode: bool = False) -> None:
             list_orphans=False,
             autoremove=False,
             broken=False,
-            dry_run=dry_run
+            dry_run=dry_run,
+            yes=False
         )
         cmd_uninstall_app(args)
 
