@@ -19,7 +19,7 @@ LinuxMole is a Mole-inspired CLI for Linux servers with Docker. It focuses on sa
 
 | Aspect | Status |
 |--------|--------|
-| **Version** | 1.1.1 |
+| **Version** | 1.2.0 |
 | **Tests** | 142 passing (100%) |
 | **Coverage** | 19.82% |
 | **Architecture** | Modular (28 modules) |
@@ -52,21 +52,34 @@ LinuxMole is a Mole-inspired CLI for Linux servers with Docker. It focuses on sa
 
 ## Features
 
-### 🎯 Interactive Menu (New in v1.1.0)
+### 🎯 Interactive Menu (Redesigned in v1.2.0)
 
-Run `lm` without arguments to access a **complete interactive menu** with all 14 commands organized in 5 categories:
+Run `lm` without arguments to access a **modernized interactive menu** with all 14 commands organized in 5 color-coded categories:
 
-- **📊 Monitoring & Analysis** - Status checks and disk usage analyzer
-- **🧹 Cleanup & Maintenance** - Docker and system cleanup, purge artifacts
-- **⚙️ System Operations** - App uninstaller, system optimization
-- **🔧 Configuration** - Whitelist and config management
-- **🔌 LinuxMole System** - Self-update and uninstall
+#### Execution Modes
+
+Choose your preferred execution mode at startup:
+
+- **🟢 Normal Mode** - Execute without root permissions (limited features)
+- **🔴 Root Mode** - Execute with full system access (all features)
+- **🟡 Dry-Run Mode** - Preview commands without executing (safe testing)
+
+#### Color-Coded Categories
+
+Menu items use intuitive color coding for quick identification:
+
+- **🔵 Blue** - Monitoring & Analysis (status checks, disk usage)
+- **🟢 Green** - Cleanup & Maintenance (safe operations)
+- **🟡 Yellow** - System Operations (requires caution)
+- **🟠 Orange** - Configuration (settings management)
+- **🔴 Red** - LinuxMole System (updates, self-uninstall)
 
 **Benefits:**
 - ✅ No need to memorize CLI commands
+- ✅ Clear visual hierarchy with color coding
+- ✅ Mode selection prevents accidental privilege escalation
 - ✅ Interactive wizards with smart defaults
-- ✅ Visual indicators (Dry-Run, Root Mode)
-- ✅ Organized categories for easy navigation
+- ✅ Return to mode selection with 'm' (Normal Mode only)
 
 ### Core Features
 
@@ -77,11 +90,44 @@ Run `lm` without arguments to access a **complete interactive menu** with all 14
 - Whitelist support and detailed preview logs
 
 ## Screenshots
+
+### Mode Selection
+<p align="center">
+  <img src="https://raw.githubusercontent.com/4ndymcfly/linux-mole/main/screenshots/main-menu.png" alt="Mode selection" width="600">
+</p>
+
+### Interactive Menus
 <table align="center">
   <tr>
-    <td align="center"><img src="https://raw.githubusercontent.com/4ndymcfly/linux-mole/main/screenshots/linux-mole-system-status-002.png" alt="System status" height="300"></td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/4ndymcfly/linux-mole/main/screenshots/normal-mode-main-menu.png" alt="Normal Mode" height="280">
+      <br><b>Normal Mode</b>
+    </td>
+    <td width="20"></td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/4ndymcfly/linux-mole/main/screenshots/root-mode-main-menu.png" alt="Root Mode" height="280">
+      <br><b>Root Mode</b>
+    </td>
+    <td width="20"></td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/4ndymcfly/linux-mole/main/screenshots/dry-run-main-menu.png" alt="Dry-Run Mode" height="280">
+      <br><b>Dry-Run Mode</b>
+    </td>
+  </tr>
+</table>
+
+### Status & Monitoring
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/4ndymcfly/linux-mole/main/screenshots/system-status-root-mode.png" alt="System Status" height="300">
+      <br><b>System Status</b>
+    </td>
     <td width="24"></td>
-    <td align="center"><img src="https://raw.githubusercontent.com/4ndymcfly/linux-mole/main/screenshots/linux-mole-kernel-001.png" alt="Kernel" height="300"></td>
+    <td align="center">
+      <img src="https://raw.githubusercontent.com/4ndymcfly/linux-mole/main/screenshots/status-docker-only.png" alt="Docker Status" height="300">
+      <br><b>Docker Status</b>
+    </td>
   </tr>
 </table>
 
