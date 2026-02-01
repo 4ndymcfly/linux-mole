@@ -805,16 +805,16 @@ def interactive_simple() -> None:
 
         menu_options.append((option_num, "whitelist"))
         if RICH and console:
-            console.print(f"    [bright_yellow]{option_num:>2}[/bright_yellow]   Manage Whitelist")
+            console.print(f"     [bright_yellow]{option_num:>2}[/bright_yellow]   Manage Whitelist")
         else:
-            p(f"    {option_num:>2}   Manage Whitelist")
+            p(f"     {option_num:>2}   Manage Whitelist")
         option_num += 1
 
         menu_options.append((option_num, "config"))
         if RICH and console:
-            console.print(f"    [bright_yellow]{option_num:>2}[/bright_yellow]   Manage Configuration")
+            console.print(f"     [bright_yellow]{option_num:>2}[/bright_yellow]   Manage Configuration")
         else:
-            p(f"    {option_num:>2}   Manage Configuration")
+            p(f"     {option_num:>2}   Manage Configuration")
         option_num += 1
 
         # ── LINUXMOLE SYSTEM ──
@@ -825,16 +825,16 @@ def interactive_simple() -> None:
 
             menu_options.append((option_num, "update"))
             if RICH and console:
-                console.print(f"    [red]{option_num:>2}[/red]   Update LinuxMole")
+                console.print(f"     [red]{option_num:>2}[/red]   Update LinuxMole")
             else:
-                p(f"    {option_num:>2}   Update LinuxMole")
+                p(f"     {option_num:>2}   Update LinuxMole")
             option_num += 1
 
             menu_options.append((option_num, "self_uninstall"))
             if RICH and console:
-                console.print(f"    [red]{option_num:>2}[/red]   Self-Uninstall LinuxMole")
+                console.print(f"     [red]{option_num:>2}[/red]   Self-Uninstall LinuxMole")
             else:
-                p(f"    {option_num:>2}   Self-Uninstall LinuxMole")
+                p(f"     {option_num:>2}   Self-Uninstall LinuxMole")
             option_num += 1
 
         # Footer
