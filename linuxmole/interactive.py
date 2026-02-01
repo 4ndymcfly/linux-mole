@@ -626,18 +626,20 @@ def interactive_simple() -> None:
     from linuxmole.constants import RICH, console
     import sys
 
-    # ═══════════════════════════════════════════════════════════
-    # STEP 1: Determine execution mode
-    # ═══════════════════════════════════════════════════════════
+    # Outer loop: allows returning to mode selection with 'm' option
+    while True:
+        # ═══════════════════════════════════════════════════════════
+        # STEP 1: Determine execution mode
+        # ═══════════════════════════════════════════════════════════
 
-    # Check if we're coming from dry-run re-execution via internal flag
-    dry_run_from_args = "--interactive-dry-run" in sys.argv
+        # Check if we're coming from dry-run re-execution via internal flag
+        dry_run_from_args = "--interactive-dry-run" in sys.argv
 
-    # If already running as root, check if it's dry-run mode or normal root mode
-    if is_root():
-        dry_run_mode = dry_run_from_args  # True if from dry-run, False if normal root
-        # Go directly to main menu (skip mode selection)
-    else:
+        # If already running as root, check if it's dry-run mode or normal root mode
+        if is_root():
+            dry_run_mode = dry_run_from_args  # True if from dry-run, False if normal root
+            # Go directly to main menu (skip mode selection)
+        else:
         # Not root - show mode selection
         clear_screen()
         print_header()
@@ -867,19 +869,25 @@ def interactive_simple() -> None:
         p("")
         if RICH and console:
             console.print("[dim]─────────────────────────────────────────────────────────────[/dim]")
+            console.print("    [bold white]m[/bold white]   Main Menu (change mode)")
             console.print("    [bold white]0[/bold white]   Exit Program")
             console.print("[dim]─────────────────────────────────────────────────────────────[/dim]\n")
         else:
             p("─────────────────────────────────────────────────────────────")
+            p("    m   Main Menu (change mode)")
             p("    0   Exit Program")
             p("─────────────────────────────────────────────────────────────\n")
 
-        choice = input("  → ").strip()
+        choice = input("  → ").strip().lower()
 
         if choice == "0":
             if RICH and console:
                 console.print("\n  [dim]Exiting LinuxMole...[/dim]\n")
             return
+
+        elif choice == "m":
+            # Return to mode selection menu
+            break
 
         # Convert input to integer and find corresponding action
         try:
