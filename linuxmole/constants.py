@@ -36,12 +36,14 @@ except Exception:
 
 # Textual TUI support (optional)
 TEXTUAL = False
+TEXTUAL_ERROR = None
 try:
     from textual.app import App, ComposeResult
     from textual.containers import Container, Horizontal, Vertical
-    from textual.widgets import Header, Footer, DirectoryTree, Static, Label
+    from textual.widgets import Header, Footer, DirectoryTree, Static, Label, DataTable
     from textual.binding import Binding
     from textual.reactive import reactive
     TEXTUAL = True
-except Exception:
+except Exception as e:
     TEXTUAL = False
+    TEXTUAL_ERROR = str(e)

@@ -15,6 +15,7 @@ from linuxmole.constants import (
     _SIZE_RE,
     RICH,
     TEXTUAL,
+    TEXTUAL_ERROR,
     console,
 )
 
@@ -205,6 +206,7 @@ __all__ = [
     "_SIZE_RE",
     "RICH",
     "TEXTUAL",
+    "TEXTUAL_ERROR",
     "console",
     # Logging
     "logger",
