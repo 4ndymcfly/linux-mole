@@ -869,12 +869,16 @@ def interactive_simple() -> None:
             p("")
             if RICH and console:
                 console.print("[dim]─────────────────────────────────────────────────────────────[/dim]")
-                console.print("    [bold white]m[/bold white]   Main Menu (change mode)")
+                # Only show 'm' option in Normal Mode (not root)
+                if not is_root():
+                    console.print("    [bold white]m[/bold white]   Main Menu (change mode)")
                 console.print("    [bold white]0[/bold white]   Exit Program")
                 console.print("[dim]─────────────────────────────────────────────────────────────[/dim]\n")
             else:
                 p("─────────────────────────────────────────────────────────────")
-                p("    m   Main Menu (change mode)")
+                # Only show 'm' option in Normal Mode (not root)
+                if not is_root():
+                    p("    m   Main Menu (change mode)")
                 p("    0   Exit Program")
                 p("─────────────────────────────────────────────────────────────\n")
 
@@ -886,8 +890,16 @@ def interactive_simple() -> None:
                 return
 
             elif choice == "m":
-                # Return to mode selection menu
-                break
+                # Return to mode selection menu (only available in Normal Mode)
+                if not is_root():
+                    break
+                else:
+                    if RICH and console:
+                        console.print("\n  [red]✗[/red] Cannot change mode from Root/Dry-Run Mode. Use '0' to exit.\n", style="bold")
+                    else:
+                        p("\n  ✗ Cannot change mode from Root/Dry-Run Mode. Use '0' to exit.\n")
+                    pause()
+                    continue
 
             # Convert input to integer and find corresponding action
             try:
