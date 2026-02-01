@@ -111,17 +111,22 @@ def print_mode_banner(dry_run_mode: bool) -> None:
 
 def simple_docker_clean(dry_run_mode: bool = False) -> None:
     """Interactive Docker cleanup wizard."""
+    print_submenu_header("DOCKER CLEANUP")
+
+    p("Select cleanup operations:")
+    p("")
+
     # Changed defaults to True (Y/n instead of y/N)
-    containers = prompt_bool("Remove stopped containers", True)
-    networks = prompt_bool("Remove dangling networks", True)
-    volumes = prompt_bool("Remove dangling volumes", True)
-    builder = prompt_bool("Clean builder cache", True)
-    builder_all = prompt_bool("Builder prune --all", True) if builder else False
-    images = prompt_choice("Image cleanup", ["off", "dangling", "unused", "all"], "dangling")
-    system_prune = prompt_bool("Run docker system prune", True)
-    system_prune_all = prompt_bool("System prune -a", True) if system_prune else False
-    system_prune_volumes = prompt_bool("System prune --volumes", True) if system_prune else False
-    truncate_logs_mb = prompt_int("Truncate json-file logs >= N MB")
+    containers = prompt_bool("🟢 Remove stopped containers", True)
+    networks = prompt_bool("🟢 Remove dangling networks", True)
+    volumes = prompt_bool("🟢 Remove dangling volumes", True)
+    builder = prompt_bool("🟢 Clean builder cache", True)
+    builder_all = prompt_bool("🟡 Builder prune --all", True) if builder else False
+    images = prompt_choice("🟡 Image cleanup", ["off", "dangling", "unused", "all"], "dangling")
+    system_prune = prompt_bool("🟡 Run docker system prune", True)
+    system_prune_all = prompt_bool("🟠 System prune -a", True) if system_prune else False
+    system_prune_volumes = prompt_bool("🔴 System prune --volumes", True) if system_prune else False
+    truncate_logs_mb = prompt_int("🔵 Truncate json-file logs >= N MB")
 
     # Don't ask for dry-run if already in dry-run mode
     dry_run = dry_run_mode if dry_run_mode else prompt_bool("Dry-run", True)
@@ -146,17 +151,24 @@ def simple_docker_clean(dry_run_mode: bool = False) -> None:
 
 def simple_clean_system(dry_run_mode: bool = False) -> None:
     """Interactive system cleanup wizard."""
+    print_submenu_header("SYSTEM CLEANUP")
+
+    p("Select cleanup operations:")
+    p("")
+
     # Changed defaults to True (Y/n instead of y/N)
-    journal = prompt_bool("Clean journald", True)
+    journal = prompt_bool("🟢 Clean journald", True)
     journal_time = "14d"
     journal_size = "500M"
     if journal:
-        jt = input("Retention by time (e.g. 7d, 14d, 1month) [14d]: ").strip()
-        js = input("Size cap (e.g. 200M, 1G) [500M]: ").strip()
+        p("")
+        jt = input("  Retention by time (e.g. 7d, 14d, 1month) [14d]: ").strip()
+        js = input("  Size cap (e.g. 200M, 1G) [500M]: ").strip()
         journal_time = jt or journal_time
         journal_size = js or journal_size
-    tmpfiles = prompt_bool("systemd-tmpfiles --clean", True)
-    apt = prompt_bool("apt autoremove/autoclean/clean", True)
+        p("")
+    tmpfiles = prompt_bool("🟢 systemd-tmpfiles --clean", True)
+    apt = prompt_bool("🟢 apt autoremove/autoclean/clean", True)
 
     # Don't ask for dry-run if already in dry-run mode
     dry_run = dry_run_mode if dry_run_mode else prompt_bool("Dry-run", True)
@@ -193,8 +205,7 @@ def simple_clean_system(dry_run_mode: bool = False) -> None:
 
 def simple_analyze() -> None:
     """Interactive disk analysis wizard."""
-    p("=== Disk Usage Analyzer ===")
-    p("")
+    print_submenu_header("DISK USAGE ANALYZER")
 
     # Path selection
     path = input("Path to analyze [/]: ").strip() or "/"
@@ -203,8 +214,9 @@ def simple_analyze() -> None:
     top_input = input("Number of top directories [10]: ").strip()
     top = int(top_input) if top_input.isdigit() else 10
 
+    p("")
     # TUI mode
-    use_tui = prompt_bool("Use interactive TUI (recommended)", True)
+    use_tui = prompt_bool("🔵 Use interactive TUI (recommended)", True)
 
     args = argparse.Namespace(
         path=path,
@@ -216,20 +228,20 @@ def simple_analyze() -> None:
 
 def simple_purge() -> None:
     """Interactive purge build artifacts wizard."""
-    p("=== Purge Build Artifacts ===")
-    p("")
+    print_submenu_header("PURGE BUILD ARTIFACTS")
+
     p("This will search and remove common build artifacts:")
-    p("  • node_modules/")
-    p("  • target/ (Rust)")
-    p("  • build/, dist/")
-    p("  • __pycache__/, *.pyc")
-    p("  • .venv/, venv/")
+    p("  🔵 node_modules/")
+    p("  🔵 target/ (Rust)")
+    p("  🔵 build/, dist/")
+    p("  🔵 __pycache__/, *.pyc")
+    p("  🔵 .venv/, venv/")
     p("")
     p("Searches in paths from: ~/.config/linuxmole/purge_paths.txt")
     p("")
 
     # Ask for confirmation preference
-    auto_yes = not prompt_bool("Ask for confirmation before purging", True)
+    auto_yes = not prompt_bool("🟡 Ask for confirmation before purging", True)
 
     args = argparse.Namespace(
         paths=False,
@@ -240,19 +252,19 @@ def simple_purge() -> None:
 
 def simple_installer() -> None:
     """Interactive installer files removal wizard."""
-    p("=== Remove Installer Files ===")
-    p("")
+    print_submenu_header("REMOVE INSTALLER FILES")
+
     p("This will find and optionally remove:")
-    p("  • .deb files (Debian packages)")
-    p("  • .rpm files (Red Hat packages)")
-    p("  • .AppImage files")
-    p("  • .iso files (disc images)")
+    p("  🔵 .deb files (Debian packages)")
+    p("  🔵 .rpm files (Red Hat packages)")
+    p("  🔵 .AppImage files")
+    p("  🔵 .iso files (disc images)")
     p("")
     p("Searches in: ~/Downloads, ~/Desktop")
     p("")
 
     # Ask for confirmation preference
-    auto_yes = not prompt_bool("Ask for confirmation before removing", True)
+    auto_yes = not prompt_bool("🟡 Ask for confirmation before removing", True)
 
     args = argparse.Namespace(
         yes=auto_yes
@@ -372,19 +384,19 @@ def simple_uninstall(dry_run_mode: bool = False) -> None:
 
 def simple_optimize(dry_run_mode: bool = False) -> None:
     """Interactive system optimization wizard."""
-    p("=== System Optimization ===")
-    p("")
+    print_submenu_header("SYSTEM OPTIMIZATION")
+
     p("Select optimizations to perform:")
     p("")
 
     # Optimization categories
-    database = prompt_bool("📚 Rebuild databases (locate, man, ldconfig, fonts)", True)
-    network = prompt_bool("🌐 Network optimization (flush DNS, clear ARP)", True)
-    services = prompt_bool("⚙️  Systemd services (daemon-reload, reset failed)", True)
+    database = prompt_bool("🔵 Rebuild databases (locate, man, ldconfig, fonts)", True)
+    network = prompt_bool("🔵 Network optimization (flush DNS, clear ARP)", True)
+    services = prompt_bool("🔵 Systemd services (daemon-reload, reset failed)", True)
 
     p("")
-    p("⚠️  ADVANCED OPTION (can cause temporary slowdown):")
-    clear_cache = prompt_bool("💾 Clear page cache", False)
+    p("🟠 ADVANCED OPTION (can cause temporary slowdown):")
+    clear_cache = prompt_bool("🔴 Clear page cache", False)
 
     if not any([database, network, services, clear_cache]):
         p("No optimizations selected.")
@@ -522,21 +534,20 @@ def simple_update() -> None:
     """Update LinuxMole to latest version."""
     clear_screen()
     print_header()
+    print_submenu_header("UPDATE LINUXMOLE")
 
-    p("=== Update LinuxMole ===")
-    p("")
     p("This will update LinuxMole to the latest version using pipx.")
     p("")
-    p(f"Current version: {VERSION}")
+    p(f"🔵 Current version: {VERSION}")
     p("")
 
     if not which("pipx"):
-        p("⚠️  pipx is not installed.")
+        p("🔴 pipx is not installed.")
         p("   Install with: sudo apt install pipx")
         pause()
         return
 
-    if prompt_bool("Check for updates and install?", True):
+    if prompt_bool("🟢 Check for updates and install?", True):
         p("")
         p("Updating LinuxMole...")
         run(["pipx", "upgrade", "linuxmole"], dry_run=False)
@@ -551,29 +562,28 @@ def simple_self_uninstall() -> None:
     """Uninstall LinuxMole from system."""
     clear_screen()
     print_header()
+    print_submenu_header("SELF-UNINSTALL LINUXMOLE")
 
-    p("=== Self-Uninstall LinuxMole ===")
-    p("")
-    p("⚠️  ⚠️  ⚠️  WARNING ⚠️  ⚠️  ⚠️")
+    p("🔴 🔴 🔴  WARNING  🔴 🔴 🔴")
     p("")
     p("This will COMPLETELY REMOVE LinuxMole from your system.")
     p("")
     p("What will be removed:")
-    p("  • LinuxMole executable (pipx package)")
+    p("  🔴 LinuxMole executable (pipx package)")
     p("")
     p("What will be PRESERVED:")
-    p("  • Configuration (~/.config/linuxmole/)")
-    p("  • Whitelist patterns")
+    p("  🟢 Configuration (~/.config/linuxmole/)")
+    p("  🟢 Whitelist patterns")
     p("")
 
-    if not prompt_bool("Are you ABSOLUTELY SURE you want to uninstall?", False):
+    if not prompt_bool("🟠 Are you ABSOLUTELY SURE you want to uninstall?", False):
         p("Uninstall cancelled.")
         pause()
         return
 
     p("")
-    p("⚠️  LAST CONFIRMATION")
-    if not prompt_bool("Really uninstall LinuxMole? (no going back)", False):
+    p("🔴 LAST CONFIRMATION")
+    if not prompt_bool("🔴 Really uninstall LinuxMole? (no going back)", False):
         p("Uninstall cancelled.")
         pause()
         return
